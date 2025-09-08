@@ -113,13 +113,21 @@ def process_file(file_path: Path, out_dir: Path, jff_type: str = "fa", refresh: 
 		if qid in done_ids:
 			processed_questions.append(q)
 			continue
-		# Se modo QA, pedir resposta curta para o enunciado
+		# Enriquecer a questão com FA (modo FA) ou resposta curta (modo QA)
+		enunciado = q.get("enunciado") or q.get("text") or ""
 		if ANSWER_MODE == "qa":
-			resp = extract_with_gemini(q.get("enunciado") or q.get("text") or "")
-			# mescla resposta na questão
+			resp = extract_with_gemini(enunciado)
 			qr = (resp.get("questoes") or [None])[0] or {}
 			if "resposta" in qr:
 				q["resposta"] = qr["resposta"]
+		else:
+			# FA: pedir ao Gemini um FA para este enunciado
+			resp = extract_with_gemini(enunciado)
+			qr = (resp.get("questoes") or [None])[0] or {}
+			# Incorporar possíveis campos retornados (fa, alternativas, correta, explicacao)
+			for k in ["fa", "alternativas", "correta", "explicacao"]:
+				if k in qr:
+					q[k] = qr[k]
 		# Saídas por questão
 		_write_per_question_outputs(file_path.stem, out_dir, q, jff_type, solved_subdir)
 		processed_questions.append(q)
@@ -133,7 +141,6 @@ def process_file(file_path: Path, out_dir: Path, jff_type: str = "fa", refresh: 
 	if ANSWER_MODE == "qa":
 		_write_concatenated_answers(file_path.stem, out_dir, processed_questions)
 	else:
-		# Consolidado JFF com todas as questões (opcional: gerar apenas placeholder/none)
 		consolidated = {"questoes": processed_questions}
 		jff_out = out_dir / f"{file_path.stem}.jff"
 		write_fa_jff_file(consolidated, str(jff_out))
