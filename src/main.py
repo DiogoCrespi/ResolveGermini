@@ -1,5 +1,6 @@
 import argparse
 import json
+import os
 from pathlib import Path
 from typing import Dict, Any, List
 
@@ -11,6 +12,7 @@ from .jff_converter import write_mealy_jff_file, write_fa_jff_file
 
 
 STATUS_FILE = "status.json"
+ANSWER_MODE = os.getenv("ANSWER_MODE", "fa").lower().strip()
 
 
 def load_status(out_dir: Path) -> Dict[str, Any]:
@@ -54,6 +56,23 @@ def _write_per_question_outputs(stem: str, out_dir: Path, merged: Dict[str, Any]
 			write_mealy_jff_file(per_data, str(jff_path))
 		elif jff_type == "fa":
 			write_fa_jff_file(per_data, str(jff_path))
+
+
+def _write_concatenated_answers(stem: str, out_dir: Path, merged: Dict[str, Any]) -> None:
+	# Gera um TXT com respostas curtas concatenadas (modo QA)
+	questions = merged.get("questoes", [])
+	lines: List[str] = []
+	for idx, q in enumerate(questions, start=1):
+		qid = q.get("id") or f"Q{idx}"
+		enun = (q.get("enunciado") or q.get("text") or "").strip()
+		resp = (q.get("resposta") or "").strip()
+		if enun:
+			lines.append(f"[{qid}] {enun}")
+		if resp:
+			lines.append(f"Resposta: {resp}")
+		lines.append("")
+	out_path = out_dir / f"{stem}_respostas.txt"
+	out_path.write_text("\n".join(lines), encoding="utf-8")
 
 
 def process_file(file_path: Path, out_dir: Path, jff_type: str = "fa", refresh: bool = False, solved_subdir: str = "resolvidas") -> None:
@@ -111,14 +130,19 @@ def process_file(file_path: Path, out_dir: Path, jff_type: str = "fa", refresh: 
 
 	json_out.write_text(json.dumps(merged, ensure_ascii=False, indent=2), encoding="utf-8")
 
-	jff_out = out_dir / f"{file_path.stem}.jff"
-	if jff_type == "mealy":
-		write_mealy_jff_file(merged, str(jff_out))
-	elif jff_type == "fa":
-		write_fa_jff_file(merged, str(jff_out))
+	# Geração consolidada conforme modo
+	if ANSWER_MODE == "qa":
+		_write_concatenated_answers(file_path.stem, out_dir, merged)
 	else:
-		raise NotImplementedError("Tipos moore/dfa ainda não implementados")
+		jff_out = out_dir / f"{file_path.stem}.jff"
+		if jff_type == "mealy":
+			write_mealy_jff_file(merged, str(jff_out))
+		elif jff_type == "fa":
+			write_fa_jff_file(merged, str(jff_out))
+		else:
+			raise NotImplementedError("Tipos moore/dfa ainda não implementados")
 
+	# Saídas por questão
 	_write_per_question_outputs(file_path.stem, out_dir, merged, jff_type, solved_subdir)
 
 	entry["done"] = True

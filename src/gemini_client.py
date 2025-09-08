@@ -1,5 +1,6 @@
 import json
 import re
+import os
 from typing import List, Dict, Any
 
 from tenacity import retry, wait_exponential, stop_after_attempt
@@ -12,6 +13,8 @@ from .config import GEMINI_API_KEY, GEMINI_MODEL, RATE_LIMIT_PER_MINUTE
 if not GEMINI_API_KEY:
 	raise RuntimeError("GEMINI_API_KEY não definida. Use .env ou variável de ambiente.")
 
+ANSWER_MODE = os.getenv("ANSWER_MODE", "fa").lower().strip()
+
 # Carrega exemplo de formato (se existir)
 FORMAT_EXAMPLE = None
 for candidate in ["Automato_Finito.xml", "Automato_Finito.jff"]:
@@ -20,7 +23,7 @@ for candidate in ["Automato_Finito.xml", "Automato_Finito.jff"]:
 		FORMAT_EXAMPLE = p.read_text(encoding="utf-8")
 		break
 
-SYSTEM_PROMPT_BASE = (
+SYSTEM_PROMPT_BASE_FA = (
 	"Você é um extrator e sintetizador de autômatos finitos. Para cada questão do texto, "
 	"retorne EM JSON VÁLIDO o objeto: {\n"
 	"  \"questoes\": [\n"
@@ -41,21 +44,28 @@ SYSTEM_PROMPT_BASE = (
 	"Regras: 1) SEM TEXTO fora do JSON. 2) Se não houver FA aplicável, use fa com arrays vazios. 3) read vazio representa epsilon. 4) IDs dos estados devem ser inteiros e únicos. 5) Marque exatamente um estado initial=true."
 )
 
-if FORMAT_EXAMPLE:
-	SYSTEM_PROMPT = SYSTEM_PROMPT_BASE + "\n\nEXEMPLO DE FORMATO JFLAP (SIGA EXATAMENTE O FORMATO):\n" + FORMAT_EXAMPLE
+SYSTEM_PROMPT_QA = (
+	"Você é um assistente para resolver questões dissertativas ou de múltipla escolha. "
+	"Responda de forma MUITO SUCINTA, no menor texto possível, mantendo precisão. "
+	"Retorne EM JSON VÁLIDO: {\n"
+	"  \"questoes\": [ { \"id\": \"Q1\", \"enunciado\": \"...\", \"resposta\": \"... (máx 1-2 frases)\" } ]\n"
+	"}\n"
+	"NÃO inclua texto fora do JSON."
+)
+
+if ANSWER_MODE == "qa":
+	SYSTEM_PROMPT = SYSTEM_PROMPT_QA
 else:
-	SYSTEM_PROMPT = SYSTEM_PROMPT_BASE
+	SYSTEM_PROMPT = SYSTEM_PROMPT_BASE_FA + ("\n\nEXEMPLO DE FORMATO JFLAP (SIGA EXATAMENTE O FORMATO):\n" + FORMAT_EXAMPLE if FORMAT_EXAMPLE else "")
 
 API_URL = f"https://generativelanguage.googleapis.com/v1beta/models/{GEMINI_MODEL}:generateContent"
 
 
 def _extract_json_from_text(text: str) -> Dict[str, Any]:
-	# Tenta json.loads direto
 	try:
 		return json.loads(text)
 	except Exception:
 		pass
-	# Tenta capturar bloco entre chaves balanceadas
 	start_idx = text.find("{")
 	while start_idx != -1:
 		depth = 0
@@ -72,7 +82,6 @@ def _extract_json_from_text(text: str) -> Dict[str, Any]:
 					except Exception:
 						break
 		start_idx = text.find("{", start_idx + 1)
-	# Fallback
 	return {"questoes": []}
 
 

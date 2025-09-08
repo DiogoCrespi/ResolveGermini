@@ -1,0 +1,65 @@
+A viabilidade de um `.exe` com a funcionalidade descrita é **alta**, mas o processo exige uma arquitetura robusta e modular. A solução pode ser implementada em **Node.js** com Electron ou em **Python** com PyInstaller, ambos adequados para aplicações desktop que rodam em Linux e Windows, atendendo ao seu requisito de plataforma.
+
+---
+
+### Arquitetura da Solução
+
+A abordagem ideal é dividir o problema em módulos independentes:
+
+1.  **Módulo de Leitura e Análise de Arquivos:**
+    * **Função:** Escaneia a pasta de origem para arquivos `doc`, `docx` e `pdf`. Utiliza bibliotecas como `mammoth` (para Word) e `pdf-parse` ou `PyPDF2` (para PDF) para extrair texto bruto.
+    * **Checagem de Estado:** Antes de processar, verifica a existência de um arquivo de estado (ex: `status.json`). Este arquivo armazena a lista de arquivos já processados e o progresso do arquivo atual, permitindo a retomada.
+
+2.  **Módulo de Comunicação com a API Gemini:**
+    * **Função:** Envia as questões extraídas para a API do Gemini. A comunicação deve ser assíncrona para não travar a aplicação. É crucial implementar um mecanismo de **rate limiting** e **retry** para lidar com falhas de rede ou limites da API.
+    * **Estrutura da Requisição:** O prompt enviado ao Gemini deve ser claro e conciso, instruindo-o a gerar as respostas em um formato estruturado (ex: JSON ou XML) que possa ser facilmente convertido para Jff.
+
+3.  **Módulo de Geração e Conversão de Arquivos:**
+    * **Função:** Recebe o retorno da API do Gemini e o formata.
+    * **Geração de TXT/XML:** O retorno estruturado é salvo como `.txt` ou `.xml`.
+    * **Conversão para Jff:** Este é o passo mais crítico. A conversão de formato de arquivo (de XML/TXT para Jff) não é trivial. Você precisará de um parser que entenda a sintaxe do formato Jff e construa o arquivo corretamente, pois a formatação pode ser proprietária. Uma alternativa é escrever um script para converter o arquivo gerado.
+
+4.  **Módulo de Interface e Controle (GUI/CLI):**
+    * **Função:** Oferece uma interface para o usuário iniciar o processo e visualizar o progresso. Pode ser uma interface de linha de comando (CLI) ou gráfica (GUI) com Electron/PyQt.
+
+---
+
+### Solução Técnica (Node.js com Electron)
+
+A seguir, um esboço de como a arquitetura pode ser implementada.
+
+**Dependências Principais:**
+
+* **Electron:** Para a aplicação desktop.
+* **`fs/promises`:** Para manipulação de arquivos assíncrona.
+* **`glob`:** Para encontrar arquivos na pasta.
+* **`mammoth`:** Para extrair texto de `.docx`.
+* **`pdf-parse`:** Para extrair texto de `.pdf`.
+* **`axios` ou `fetch`:** Para requisições à API.
+* **`xml2js` ou `json-xml`:** Para conversão de dados.
+
+**Fluxo de Execução:**
+
+1.  **Checagem Inicial:** Ao iniciar o `.exe`, o sistema lê `status.json`. Se o arquivo existir, ele carrega o estado anterior.
+2.  **Coleta de Arquivos:** Usa `glob` para encontrar todos os arquivos na pasta de origem.
+3.  **Filtragem e Processamento:**
+    * Filtra os arquivos para processar apenas aqueles que não estão no `status.json`.
+    * Inicia um loop para processar cada arquivo.
+    * Dentro do loop, lê o arquivo, extrai o texto e o segmenta em blocos de 30 questões.
+4.  **Comunicação com a API:**
+    * Para cada bloco de questões, faz uma requisição POST assíncrona para a API do Gemini.
+    * A API retorna o texto formatado.
+5.  **Geração e Conversão:**
+    * O retorno da API é salvo em um arquivo temporário `.txt` ou `.xml`.
+    * Um script de conversão personalizado lê este arquivo temporário e gera o arquivo final `.jff`.
+6.  **Atualização de Estado:** Após a conclusão, o nome do arquivo processado é adicionado ao `status.json`.
+
+---
+
+### Pontos de Atenção e Boas Práticas
+
+* **Gerenciamento de Estado:** A checagem de progresso e a capacidade de retomar o processamento é vital. O `status.json` é um ponto de falha. Use mecanismos de escrita segura.
+* **Segurança e Chaves de API:** As chaves de API do Gemini não devem ser embutidas diretamente no código-fonte. Armazene-as em variáveis de ambiente ou em um arquivo de configuração fora da aplicação principal.
+* **Tolerância a Falhas:** O sistema deve ser resiliente a erros, como falhas na comunicação com a API ou arquivos corrompidos. O uso de `try-catch` e `retry` é fundamental.
+* **Formato de Saída:** O Gemini não gera Jff diretamente. O prompt precisa ser muito específico para que a saída em texto ou XML seja facilmente convertível.
+* **Escalabilidade:** Para um grande volume de arquivos, considere o processamento em lotes (batch processing) e o uso de filas de tarefas para evitar sobrecarregar o sistema.

@@ -5,6 +5,18 @@ $ErrorActionPreference = "Stop"
 $root = Split-Path -Parent $MyInvocation.MyCommand.Path
 Set-Location $root
 
+# Menu
+Write-Host "Selecione o modo:" -ForegroundColor Cyan
+Write-Host "1) Questão JFF (Autômato finito)"
+Write-Host "2) Questões dissertativas / múltipla escolha (resposta sucinta)"
+$choice = Read-Host "Digite 1 ou 2"
+
+switch ($choice) {
+	'1' { $env:ANSWER_MODE = 'fa' }
+	'2' { $env:ANSWER_MODE = 'qa' }
+	Default { $env:ANSWER_MODE = 'fa' }
+}
+
 # venv
 if (-not (Test-Path ".venv/Scripts/python.exe")) {
 	python -m venv .venv
@@ -32,7 +44,7 @@ if (-not $env:GEMINI_API_KEY) {
 	exit 1
 }
 
-# Executar com FA por padrão e salvar JFFs por questão em out\resolvidas
+# Executar com FA por padrão e salvar JFFs por questão em out\resolvidas (se modo qa, ainda organiza por questão)
 & .\.venv\Scripts\python -m src.main --in . --out out --type fa --solved-dir resolvidas
 
 # Mostrar resultados
