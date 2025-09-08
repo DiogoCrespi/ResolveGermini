@@ -1,0 +1,6 @@
+pdfminer.six==20231228
+mammoth==1.6.0
+python-dotenv==1.0.1
+tenacity==8.5.0
+ratelimit==2.2.1
+google-generativeai==0.7.2
