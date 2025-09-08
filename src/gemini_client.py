@@ -14,6 +14,7 @@ if not GEMINI_API_KEY:
 	raise RuntimeError("GEMINI_API_KEY não definida. Use .env ou variável de ambiente.")
 
 ANSWER_MODE = os.getenv("ANSWER_MODE", "fa").lower().strip()
+USER_PROMPT = os.getenv("USER_PROMPT", "").strip()
 
 # Carrega exemplo de formato (se existir)
 FORMAT_EXAMPLE = None
@@ -46,9 +47,11 @@ SYSTEM_PROMPT_BASE_FA = (
 
 SYSTEM_PROMPT_QA = (
 	"Você é um assistente para resolver questões dissertativas ou de múltipla escolha. "
-	"Responda de forma MUITO SUCINTA, no menor texto possível, mantendo precisão. "
+	"Responda de forma MUITO SUCINTA, objetiva e ESTRITAMENTE conforme as instruções do usuário. "
+	"Use SOMENTE o enunciado da pergunta e o PROMPT_DO_USUÁRIO fornecido. Não utilize outras fontes ou contexto implícito. "
+	"Se o PROMPT_DO_USUÁRIO determinar um formato específico (por exemplo, apenas uma expressão regular), RETORNE APENAS esse conteúdo no campo 'resposta', sem justificativas. "
 	"Retorne EM JSON VÁLIDO: {\n"
-	"  \"questoes\": [ { \"id\": \"Q1\", \"enunciado\": \"...\", \"resposta\": \"... (máx 1-2 frases)\" } ]\n"
+	"  \"questoes\": [ { \"id\": \"Q1\", \"enunciado\": \"...\", \"resposta\": \"...\" } ]\n"
 	"}\n"
 	"NÃO inclua texto fora do JSON."
 )
@@ -95,7 +98,16 @@ def _extract_json_from_text(text: str) -> Dict[str, Any]:
 @limits(calls=RATE_LIMIT_PER_MINUTE, period=60)
 @retry(wait=wait_exponential(multiplier=1, min=1, max=30), stop=stop_after_attempt(5))
 def extract_with_gemini(block_text: str) -> Dict[str, Any]:
-	prompt = f"{SYSTEM_PROMPT}\n\nTEXTO:\n\n{block_text}\n"
+	# Monta o prompt considerando o modo QA (com PROMPT_DO_USUÁRIO) ou FA
+	if ANSWER_MODE == "qa":
+		prompt = (
+			f"{SYSTEM_PROMPT}\n\n"
+			+ (f"PROMPT_DO_USUÁRIO (SIGA À RISCA):\n{USER_PROMPT}\n\n" if USER_PROMPT else "")
+			+ "INSTRUÇÕES:\n- Responda SOMENTE com o conteúdo solicitado pelo PROMPT_DO_USUÁRIO.\n- Não explique, não justifique, não adicione exemplos.\n- Se não aplicável, responda 'N/A'.\n\n"
+			+ f"PERGUNTA (ENUNCIADO):\n{block_text}\n"
+		)
+	else:
+		prompt = f"{SYSTEM_PROMPT}\n\nTEXTO:\n\n{block_text}\n"
 	payload = {
 		"contents": [
 			{

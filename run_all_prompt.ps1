@@ -1,6 +1,11 @@
 # Requires: PowerShell 5+
 $ErrorActionPreference = "Stop"
 
+[CmdletBinding()]
+param(
+	[string]$Prompt
+)
+
 # Pasta do script
 $root = Split-Path -Parent $MyInvocation.MyCommand.Path
 Set-Location $root
@@ -32,16 +37,25 @@ if (-not $env:GEMINI_API_KEY) {
 	exit 1
 }
 
-# Executar modo único: FA (gera JFF) e salvar JFFs por questão em out\resolvidas
-& .\.venv\Scripts\python -m src.main --in . --out out --type fa --solved-dir resolvidas
+# Coletar prompt do usuário para orientar as respostas (modo QA puro)
+if ([string]::IsNullOrWhiteSpace($Prompt)) {
+	$userPrompt = Read-Host "Digite um PROMPT para orientar as respostas (será anexado a cada questão)"
+} else {
+	$userPrompt = $Prompt
+}
+$env:ANSWER_MODE = "qa"
+$env:USER_PROMPT = $userPrompt
 
-# Renomear JFFs em out\resolvidas para nomes curtos (Q1a, Q1b, Q2a...)
+# Executar pipeline: segmenta e responde (gera TXT por questão em out\resolvidas; sem JFF)
+& .\.venv\Scripts\python -m src.main --in . --out out --type fa --solved-dir resolvidas --refresh
+
+# Renomear TXTs em out\resolvidas para nomes curtos (Q1a, Q1b, Q2a...)
 $resolvedDir = Join-Path out resolvidas
 if (Test-Path $resolvedDir) {
-	Get-ChildItem -File (Join-Path $resolvedDir "*.jff") -ErrorAction SilentlyContinue | ForEach-Object {
+	Get-ChildItem -File (Join-Path $resolvedDir "*.txt") -ErrorAction SilentlyContinue | ForEach-Object {
 		$name = $_.Name
-		if ($name -match "_(Q[0-9]+[a-z]?)\.jff$") {
-			$new = "$($Matches[1]).jff"
+		if ($name -match "_(Q[0-9]+[a-z]?)\.txt$") {
+			$new = "$($Matches[1]).txt"
 			if ($name -ne $new) {
 				Rename-Item -Path $_.FullName -NewName $new -Force
 			}
@@ -53,7 +67,7 @@ if (Test-Path $resolvedDir) {
 Write-Host "Arquivos em out/:" -ForegroundColor Cyan
 Get-ChildItem -Force out | Select-Object Name, Length | Format-Table -AutoSize
 
-Write-Host "Arquivos resolvidos (JFF por questão) em out\resolvidas/:" -ForegroundColor Cyan
+Write-Host "Arquivos resolvidos (TXT por questão) em out\resolvidas/:" -ForegroundColor Cyan
 Get-ChildItem -Force (Join-Path out resolvidas) -ErrorAction SilentlyContinue | Select-Object Name, Length | Format-Table -AutoSize
 
 # Copiar para a Área de Trabalho do usuário

@@ -39,7 +39,13 @@ def _write_per_question_outputs(stem: str, out_dir: Path, q: Dict[str, Any], jff
 	correta = q.get("correta") or ""
 	exp = q.get("explicacao") or ""
 	# TXT
-	txt_path = out_dir / f"{base}.txt"
+	# Em modo QA, salvar TXT por questão dentro de out/solved_subdir
+	if ANSWER_MODE == "qa":
+		solved_dir = out_dir / solved_subdir
+		solved_dir.mkdir(parents=True, exist_ok=True)
+		txt_path = solved_dir / f"{base}.txt"
+	else:
+		txt_path = out_dir / f"{base}.txt"
 	content_lines = [q.get("enunciado") or q.get("text") or ""]
 	for j, alt in enumerate(alts):
 		content_lines.append(f"{chr(65+j)}) {alt}")
@@ -47,19 +53,24 @@ def _write_per_question_outputs(stem: str, out_dir: Path, q: Dict[str, Any], jff
 		content_lines.append(f"Correta: {correta}")
 	if exp:
 		content_lines.append(f"Explicacao: {exp}")
+	# incluir resposta quando existir (modo QA)
+	resp_txt = (q.get("resposta") or "").strip()
+	if resp_txt:
+		content_lines.append(f"Resposta: {resp_txt}")
 	txt_path.write_text("\n".join(content_lines), encoding="utf-8")
 	# JSON por questão
 	json_path = out_dir / f"{base}.json"
 	json_path.write_text(json.dumps(q, ensure_ascii=False, indent=2), encoding="utf-8")
-	# JFF por questão
-	solved_dir = out_dir / solved_subdir
-	solved_dir.mkdir(parents=True, exist_ok=True)
-	jff_path = solved_dir / f"{base}.jff"
-	per_data = {"questoes": [q]}
-	if jff_type == "mealy":
-		write_mealy_jff_file(per_data, str(jff_path))
-	elif jff_type == "fa":
-		write_fa_jff_file(per_data, str(jff_path))
+	# JFF por questão (apenas quando NÃO estiver em modo QA)
+	if ANSWER_MODE != "qa":
+		solved_dir = out_dir / solved_subdir
+		solved_dir.mkdir(parents=True, exist_ok=True)
+		jff_path = solved_dir / f"{base}.jff"
+		per_data = {"questoes": [q]}
+		if jff_type == "mealy":
+			write_mealy_jff_file(per_data, str(jff_path))
+		elif jff_type == "fa":
+			write_fa_jff_file(per_data, str(jff_path))
 
 
 def _write_concatenated_answers(stem: str, out_dir: Path, questions: List[Dict[str, Any]]) -> None:
