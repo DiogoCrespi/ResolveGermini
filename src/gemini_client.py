@@ -53,6 +53,12 @@ SYSTEM_PROMPT_QA = (
 	"NÃO inclua texto fora do JSON."
 )
 
+SEGMENT_PROMPT = (
+	"Você é um segmentador de provas. Dado o TEXTO COMPLETO, retorne EM JSON VÁLIDO uma lista de questões e subquestões. "
+	"Formato: { \"questoes\": [ { \"id\": \"Q1\", \"enunciado\": \"...\" }, { \"id\": \"Q1a\", \"enunciado\": \"...\" } ] } . "
+	"Regras: 1) Sem texto fora do JSON. 2) IDs devem ter padrão Q{numero}{letra?}, por exemplo Q1, Q1a, Q1b, Q2, Q2a. 3) Preserve o enunciado completo de cada item/subitem (inclua exemplos se fizerem parte do enunciado)."
+)
+
 if ANSWER_MODE == "qa":
 	SYSTEM_PROMPT = SYSTEM_PROMPT_QA
 else:
@@ -104,6 +110,37 @@ def extract_with_gemini(block_text: str) -> Dict[str, Any]:
 		"X-goog-api-key": GEMINI_API_KEY,
 	}
 	resp = requests.post(API_URL, headers=headers, data=json.dumps(payload), timeout=120)
+	resp.raise_for_status()
+	data = resp.json()
+	candidates = data.get("candidates", [])
+	if not candidates:
+		return {"questoes": []}
+	parts = candidates[0].get("content", {}).get("parts", [])
+	if not parts or "text" not in parts[0]:
+		return {"questoes": []}
+	text = parts[0]["text"]
+	return _extract_json_from_text(text)
+
+
+@sleep_and_retry
+@limits(calls=RATE_LIMIT_PER_MINUTE, period=60)
+@retry(wait=wait_exponential(multiplier=1, min=1, max=30), stop=stop_after_attempt(5))
+def segment_text_into_questions(full_text: str) -> Dict[str, Any]:
+	prompt = f"{SEGMENT_PROMPT}\n\nTEXTO COMPLETO:\n\n{full_text}\n"
+	payload = {
+		"contents": [
+			{
+				"parts": [
+					{"text": prompt}
+				]
+			}
+		]
+	}
+	headers = {
+		"Content-Type": "application/json",
+		"X-goog-api-key": GEMINI_API_KEY,
+	}
+	resp = requests.post(API_URL, headers=headers, data=json.dumps(payload), timeout=180)
 	resp.raise_for_status()
 	data = resp.json()
 	candidates = data.get("candidates", [])

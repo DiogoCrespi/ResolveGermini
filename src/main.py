@@ -6,8 +6,7 @@ from typing import Dict, Any, List
 
 from .config import INPUT_DIR_DEFAULT, OUTPUT_DIR_DEFAULT, MAX_QUEST_PER_BLOCK
 from .extractor import extract_text
-from .splitter import split_questions
-from .gemini_client import extract_with_gemini, merge_blocks
+from .gemini_client import extract_with_gemini, merge_blocks, segment_text_into_questions
 from .jff_converter import write_mealy_jff_file, write_fa_jff_file
 
 
@@ -27,40 +26,43 @@ def save_status(out_dir: Path, status: Dict[str, Any]) -> None:
 	(out_dir / STATUS_FILE).write_text(json.dumps(status, ensure_ascii=False, indent=2), encoding="utf-8")
 
 
-def _write_per_question_outputs(stem: str, out_dir: Path, merged: Dict[str, Any], jff_type: str, solved_subdir: str) -> None:
-	questions = merged.get("questoes", [])
+def _sanitize_id(raw_id: str) -> str:
+	s = (raw_id or "").strip()
+	s = s.replace(" ", "_")
+	return s
+
+
+def _write_per_question_outputs(stem: str, out_dir: Path, q: Dict[str, Any], jff_type: str, solved_subdir: str) -> None:
+	qid = _sanitize_id(q.get("id") or "Q")
+	base = f"{stem}_{qid}"
+	alts = q.get("alternativas", [])
+	correta = q.get("correta") or ""
+	exp = q.get("explicacao") or ""
+	# TXT
+	txt_path = out_dir / f"{base}.txt"
+	content_lines = [q.get("enunciado") or q.get("text") or ""]
+	for j, alt in enumerate(alts):
+		content_lines.append(f"{chr(65+j)}) {alt}")
+	if correta:
+		content_lines.append(f"Correta: {correta}")
+	if exp:
+		content_lines.append(f"Explicacao: {exp}")
+	txt_path.write_text("\n".join(content_lines), encoding="utf-8")
+	# JSON por questão
+	json_path = out_dir / f"{base}.json"
+	json_path.write_text(json.dumps(q, ensure_ascii=False, indent=2), encoding="utf-8")
+	# JFF por questão
 	solved_dir = out_dir / solved_subdir
 	solved_dir.mkdir(parents=True, exist_ok=True)
-	for idx, q in enumerate(questions, start=1):
-		base = f"{stem}_Q{idx}"
-		# TXT por questão (continua em out/)
-		txt_path = out_dir / f"{base}.txt"
-		alts = q.get("alternativas", [])
-		correta = q.get("correta") or ""
-		exp = q.get("explicacao") or ""
-		content_lines = [q.get("enunciado") or q.get("text") or ""]
-		for j, alt in enumerate(alts):
-			content_lines.append(f"{chr(65+j)}) {alt}")
-		if correta:
-			content_lines.append(f"Correta: {correta}")
-		if exp:
-			content_lines.append(f"Explicacao: {exp}")
-		txt_path.write_text("\n".join(content_lines), encoding="utf-8")
-		# JSON por questão (continua em out/)
-		json_path = out_dir / f"{base}.json"
-		json_path.write_text(json.dumps(q, ensure_ascii=False, indent=2), encoding="utf-8")
-		# JFF por questão (vai para subpasta resolvidas/)
-		per_data = {"questoes": [q]}
-		jff_path = solved_dir / f"{base}.jff"
-		if jff_type == "mealy":
-			write_mealy_jff_file(per_data, str(jff_path))
-		elif jff_type == "fa":
-			write_fa_jff_file(per_data, str(jff_path))
+	jff_path = solved_dir / f"{base}.jff"
+	per_data = {"questoes": [q]}
+	if jff_type == "mealy":
+		write_mealy_jff_file(per_data, str(jff_path))
+	elif jff_type == "fa":
+		write_fa_jff_file(per_data, str(jff_path))
 
 
-def _write_concatenated_answers(stem: str, out_dir: Path, merged: Dict[str, Any]) -> None:
-	# Gera um TXT com respostas curtas concatenadas (modo QA)
-	questions = merged.get("questoes", [])
+def _write_concatenated_answers(stem: str, out_dir: Path, questions: List[Dict[str, Any]]) -> None:
 	lines: List[str] = []
 	for idx, q in enumerate(questions, start=1):
 		qid = q.get("id") or f"Q{idx}"
@@ -71,8 +73,7 @@ def _write_concatenated_answers(stem: str, out_dir: Path, merged: Dict[str, Any]
 		if resp:
 			lines.append(f"Resposta: {resp}")
 		lines.append("")
-	out_path = out_dir / f"{stem}_respostas.txt"
-	out_path.write_text("\n".join(lines), encoding="utf-8")
+	(out_dir / f"{stem}_respostas.txt").write_text("\n".join(lines), encoding="utf-8")
 
 
 def process_file(file_path: Path, out_dir: Path, jff_type: str = "fa", refresh: bool = False, solved_subdir: str = "resolvidas") -> None:
@@ -80,78 +81,66 @@ def process_file(file_path: Path, out_dir: Path, jff_type: str = "fa", refresh: 
 	fname = file_path.name
 	entry = status.get(fname, {})
 
+	# 1) Extrair texto completo
 	txt_path = out_dir / f"{file_path.stem}.txt"
-	if refresh:
-		entry = {}
-
-	if not entry.get("text_extracted"):
+	if refresh or not entry.get("text_extracted"):
 		text = extract_text(str(file_path), str(txt_path))
 		entry["text_extracted"] = True
-		entry["blocks_done"] = 0
 		status[fname] = entry
 		save_status(out_dir, status)
 	else:
 		text = txt_path.read_text(encoding="utf-8")
 
-	# Dividir em blocos e manter referência plana às entradas detectadas
-	blocks = split_questions(text, MAX_QUEST_PER_BLOCK)
-	flat_entries: List[Dict[str, Any]] = [q for block in blocks for q in block]
-	responses: List[Dict[str, Any]] = []
+	# 2) Fase 1: segmentação com Gemini
+	segmented_path = out_dir / f"{file_path.stem}_segmented.json"
+	if refresh or not segmented_path.exists():
+		seg = segment_text_into_questions(text)
+		(segmented_path).write_text(json.dumps(seg, ensure_ascii=False, indent=2), encoding="utf-8")
+		entry["segmented"] = True
+		entry["questions_done"] = []
+		status[fname] = entry
+		save_status(out_dir, status)
+	else:
+		seg = json.loads(segmented_path.read_text(encoding="utf-8"))
 
-	start_idx = 0 if refresh else int(entry.get("blocks_done", 0))
-	for i in range(start_idx, len(blocks)):
-		block = blocks[i]
-		block_text = "\n\n".join([q["text"] + ("\n" + "\n".join([f"{chr(65+j)}) {alt}" for j, alt in enumerate(q.get("alternativas", []))])) for q in block])
-		res = extract_with_gemini(block_text)
-		responses.append(res)
-		entry["blocks_done"] = i + 1
+	questions: List[Dict[str, Any]] = seg.get("questoes", [])
+
+	# 3) Fase 2: processar cada questão
+	done_ids = set(entry.get("questions_done", []))
+	processed_questions: List[Dict[str, Any]] = []
+	for q in questions:
+		qid = _sanitize_id(q.get("id") or "")
+		if qid in done_ids:
+			processed_questions.append(q)
+			continue
+		# Se modo QA, pedir resposta curta para o enunciado
+		if ANSWER_MODE == "qa":
+			resp = extract_with_gemini(q.get("enunciado") or q.get("text") or "")
+			# mescla resposta na questão
+			qr = (resp.get("questoes") or [None])[0] or {}
+			if "resposta" in qr:
+				q["resposta"] = qr["resposta"]
+		# Saídas por questão
+		_write_per_question_outputs(file_path.stem, out_dir, q, jff_type, solved_subdir)
+		processed_questions.append(q)
+		# atualizar status
+		done_ids.add(qid)
+		entry["questions_done"] = list(done_ids)
 		status[fname] = entry
 		save_status(out_dir, status)
 
-	json_out = out_dir / f"{file_path.stem}.json"
-	if not refresh and json_out.exists():
-		prev = json.loads(json_out.read_text(encoding="utf-8"))
-		responses.insert(0, prev)
-
-	merged = merge_blocks(responses) if responses else (json.loads(json_out.read_text(encoding="utf-8")) if json_out.exists() else {"questoes": []})
-
-	# Se não veio nada do Gemini, criar questões placeholder a partir das entradas detectadas
-	if not merged.get("questoes") and flat_entries:
-		merged["questoes"] = []
-		for idx, e in enumerate(flat_entries, start=1):
-			merged["questoes"].append({
-				"id": f"Q{idx}",
-				"enunciado": e.get("text", ""),
-				"alternativas": e.get("alternativas", []),
-				"correta": None,
-				"explicacao": "",
-				"fa": {}  # sem FA => gerador cria placeholder válido
-			})
-
-	json_out.write_text(json.dumps(merged, ensure_ascii=False, indent=2), encoding="utf-8")
-
-	# Geração consolidada conforme modo
+	# 4) Consolidados
 	if ANSWER_MODE == "qa":
-		_write_concatenated_answers(file_path.stem, out_dir, merged)
+		_write_concatenated_answers(file_path.stem, out_dir, processed_questions)
 	else:
+		# Consolidado JFF com todas as questões (opcional: gerar apenas placeholder/none)
+		consolidated = {"questoes": processed_questions}
 		jff_out = out_dir / f"{file_path.stem}.jff"
-		if jff_type == "mealy":
-			write_mealy_jff_file(merged, str(jff_out))
-		elif jff_type == "fa":
-			write_fa_jff_file(merged, str(jff_out))
-		else:
-			raise NotImplementedError("Tipos moore/dfa ainda não implementados")
-
-	# Saídas por questão
-	_write_per_question_outputs(file_path.stem, out_dir, merged, jff_type, solved_subdir)
-
-	entry["done"] = True
-	status[fname] = entry
-	save_status(out_dir, status)
+		write_fa_jff_file(consolidated, str(jff_out))
 
 
 def main() -> None:
-	parser = argparse.ArgumentParser(description="Extrair questões e gerar JFF")
+	parser = argparse.ArgumentParser(description="Extrair e processar questões")
 	parser.add_argument("--in", dest="inp", default=INPUT_DIR_DEFAULT)
 	parser.add_argument("--out", dest="out", default=OUTPUT_DIR_DEFAULT)
 	parser.add_argument("--type", dest="jff_type", default="fa", choices=["mealy", "fa", "moore", "dfa"])
