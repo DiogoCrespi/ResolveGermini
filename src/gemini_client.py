@@ -42,7 +42,7 @@ SYSTEM_PROMPT_BASE_FA = (
 	"    }\n"
 	"  ]\n"
 	"}\n"
-	"Regras: 1) SEM TEXTO fora do JSON. 2) Se não houver FA aplicável, use fa com arrays vazios. 3) read vazio representa epsilon. 4) IDs dos estados devem ser inteiros e únicos. 5) Marque exatamente um estado initial=true."
+	"Regras: 1) SEM TEXTO fora do JSON. 2) Se não houver FA aplicável, use fa com arrays vazios. 3) read vazio representa epsilon. 4) IDs dos estados devem ser inteiros e únicos. 5) Marque exatamente um estado initial=true. 6) No campo 'explicacao', RETORNE APENAS uma expressão regular equivalente à linguagem do autômato, usando o alfabeto {a,b} e operadores U (união), concatenação implícita, * (fecho de Kleene) e + (uma ou mais), com parênteses quando necessário. Exemplo de formato: (a((aUb)(aUb)))* U ((bUa)(bUa)(bUa))+ . NÃO escreva texto descritivo nesse campo, apenas a regex."
 )
 
 SYSTEM_PROMPT_QA = (
