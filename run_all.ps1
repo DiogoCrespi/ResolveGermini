@@ -32,6 +32,18 @@ if (-not $env:GEMINI_API_KEY) {
 	exit 1
 }
 
+# Limpar pasta out e recriar out\resolvidas para reprocessamento completo
+try {
+	$outDir = Join-Path $root 'out'
+	if (Test-Path $outDir) {
+		Remove-Item -Recurse -Force $outDir
+	}
+	$resDir = Join-Path $outDir 'resolvidas'
+	New-Item -ItemType Directory -Path $resDir -Force | Out-Null
+} catch {
+	Write-Host "Falha ao limpar/recriar out: $($_.Exception.Message)" -ForegroundColor Yellow
+}
+
 # Executar modo único: FA (gera JFF) e salvar JFFs por questão em out\resolvidas
 & .\.venv\Scripts\python -m src.main --in . --out out --type fa --solved-dir resolvidas
 
@@ -64,6 +76,11 @@ try {
 	if (Test-Path $src) {
 		if (Test-Path $dst) { Remove-Item -Recurse -Force $dst }
 		Copy-Item -Recurse -Force $src $dst
+		# Copiar também utilitários para a pasta de destino
+		try {
+			$jflap = Join-Path $root 'JFLAP7.1.jar'
+			if (Test-Path $jflap) { Copy-Item -Force $jflap (Join-Path $dst 'JFLAP7.1.jar') }
+		} catch {}
 		Write-Host "Cópia concluída para: $dst" -ForegroundColor Green
 	} else {
 		Write-Host "Pasta de origem não encontrada: $src" -ForegroundColor Yellow

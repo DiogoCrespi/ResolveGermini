@@ -87,6 +87,20 @@ def _write_concatenated_answers(stem: str, out_dir: Path, questions: List[Dict[s
 	(out_dir / f"{stem}_respostas.txt").write_text("\n".join(lines), encoding="utf-8")
 
 
+def _write_concatenated_explanations(stem: str, out_dir: Path, questions: List[Dict[str, Any]], solved_subdir: str) -> None:
+	lines: List[str] = []
+	for idx, q in enumerate(questions, start=1):
+		qid = q.get("id") or f"Q{idx}"
+		exp = (q.get("explicacao") or "").strip()
+		if exp:
+			lines.append(f"[{qid}] {exp}")
+	if not lines:
+		return
+	solved_dir = out_dir / solved_subdir
+	solved_dir.mkdir(parents=True, exist_ok=True)
+	(solved_dir / f"{stem}_explicacoes.txt").write_text("\n".join(lines) + "\n", encoding="utf-8")
+
+
 def process_file(file_path: Path, out_dir: Path, jff_type: str = "fa", refresh: bool = False, solved_subdir: str = "resolvidas") -> None:
 	status = load_status(out_dir)
 	fname = file_path.name
@@ -172,6 +186,8 @@ def process_file(file_path: Path, out_dir: Path, jff_type: str = "fa", refresh: 
 		consolidated = {"questoes": processed_questions}
 		jff_out = out_dir / f"{file_path.stem}.jff"
 		write_fa_jff_file(consolidated, str(jff_out))
+		# Explicações consolidadas em um único TXT dentro de out/solved_subdir
+		_write_concatenated_explanations(file_path.stem, out_dir, processed_questions, solved_subdir)
 
 
 def main() -> None:
