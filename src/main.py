@@ -116,6 +116,20 @@ def process_file(file_path: Path, out_dir: Path, jff_type: str = "fa", refresh: 
 
 	questions: List[Dict[str, Any]] = seg.get("questoes", [])
 
+	# Propagar contexto: mapear enunciados de pais (Q1, Q2, ...) e anexar aos subitens (Q1a, Q1b...)
+	parent_enunciado: Dict[str, str] = {}
+	for q in questions:
+		qid = (q.get("id") or "").strip()
+		if qid and qid[-1].isdigit():
+			parent_enunciado[qid] = (q.get("enunciado") or q.get("text") or "")
+	for q in questions:
+		qid = (q.get("id") or "").strip()
+		if qid and not qid[-1].isdigit():
+			parent_id = qid.rstrip("abcdefghijklmnopqrstuvwxyz")
+			ctx = parent_enunciado.get(parent_id, "")
+			if ctx:
+				q["contexto"] = ctx
+
 	# 3) Fase 2: processar cada questão
 	done_ids = set(entry.get("questions_done", []))
 	processed_questions: List[Dict[str, Any]] = []
@@ -126,14 +140,17 @@ def process_file(file_path: Path, out_dir: Path, jff_type: str = "fa", refresh: 
 			continue
 		# Enriquecer a questão com FA (modo FA) ou resposta curta (modo QA)
 		enunciado = q.get("enunciado") or q.get("text") or ""
+		contexto = q.get("contexto") or ""
 		if ANSWER_MODE == "qa":
-			resp = extract_with_gemini(enunciado)
+			full_prompt = enunciado if not contexto else (contexto.strip() + "\n\nSubitem:\n" + enunciado)
+			resp = extract_with_gemini(full_prompt)
 			qr = (resp.get("questoes") or [None])[0] or {}
 			if "resposta" in qr:
 				q["resposta"] = qr["resposta"]
 		else:
-			# FA: pedir ao Gemini um FA para este enunciado
-			resp = extract_with_gemini(enunciado)
+			# FA: pedir ao Gemini um FA para este enunciado, incluindo contexto da questão-mãe quando houver
+			full_prompt = enunciado if not contexto else (contexto.strip() + "\n\nSubitem:\n" + enunciado)
+			resp = extract_with_gemini(full_prompt)
 			qr = (resp.get("questoes") or [None])[0] or {}
 			# Incorporar possíveis campos retornados (fa, alternativas, correta, explicacao)
 			for k in ["fa", "alternativas", "correta", "explicacao"]:

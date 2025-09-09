@@ -58,8 +58,8 @@ SYSTEM_PROMPT_QA = (
 
 SEGMENT_PROMPT = (
 	"Você é um segmentador de provas. Dado o TEXTO COMPLETO, retorne EM JSON VÁLIDO uma lista de questões e subquestões. "
-	"Formato: { \"questoes\": [ { \"id\": \"Q1\", \"enunciado\": \"...\" }, { \"id\": \"Q1a\", \"enunciado\": \"...\" } ] } . "
-	"Regras: 1) Sem texto fora do JSON. 2) IDs devem ter padrão Q{numero}{letra?}, por exemplo Q1, Q1a, Q1b, Q2, Q2a. 3) Preserve o enunciado completo de cada item/subitem (inclua exemplos se fizerem parte do enunciado)."
+	"Formato: { \"questoes\": [ { \"id\": \"Q1\", \"enunciado\": \"...\" }, { \"id\": \"Q1a\", \"enunciado\": \"...\", \"parent\": \"Q1\" } ] } . "
+	"Regras: 1) Sem texto fora do JSON. 2) IDs devem ter padrão Q{numero}{letra?}, por exemplo Q1, Q1a, Q1b, Q2, Q2a. 3) Preserve o enunciado completo de cada item/subitem (inclua exemplos se fizerem parte do enunciado). 4) Para subitens (Q1a, Q1b, ...), inclua o campo 'parent' com o ID da questão principal (ex.: 'Q1')."
 )
 
 if ANSWER_MODE == "qa":
