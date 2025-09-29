@@ -26,7 +26,7 @@ class JFFMealyBuilder:
 		self.automaton = ET.SubElement(self.doc, "automaton")
 		self._has_state = False
 
-	def add_state(self, state_id: int, name: str, x: float, y: float, initial: bool = False, final: bool = False) -> None:
+	def add_state(self, state_id: int, name: str, x: float, y: float, initial: bool = False, final: bool = False, label: str = "") -> None:
 		st = ET.SubElement(self.automaton, "state", {"id": str(state_id), "name": name})
 		ET.SubElement(st, "x").text = str(x)
 		ET.SubElement(st, "y").text = str(y)
@@ -34,13 +34,18 @@ class JFFMealyBuilder:
 			ET.SubElement(st, "initial")
 		if final:
 			ET.SubElement(st, "final")
+		if label:
+			ET.SubElement(st, "label").text = label
 		self._has_state = True
 
-	def add_transition(self, from_id: int, to_id: int, read: Optional[str]) -> None:
+	def add_transition(self, from_id: int, to_id: int, read: Optional[str], output: str = "") -> None:
 		tr = ET.SubElement(self.automaton, "transition")
 		ET.SubElement(tr, "from").text = str(from_id)
 		ET.SubElement(tr, "to").text = str(to_id)
 		ET.SubElement(tr, "read").text = (read or "")
+		transout = ET.SubElement(tr, "transout")
+		if output:
+			transout.text = output
 
 	def to_string(self) -> str:
 		# Evita automaton vazio
@@ -87,13 +92,42 @@ class JFFFABuilder:
 
 def json_to_mealy_jff(data: Dict[str, Any]) -> str:
 	builder = JFFMealyBuilder()
-	# Placeholder mínimo
-	builder.add_state(0, "q0", 100.0, 100.0, initial=True)
+	fa = data.get("fa")
+	if not fa:
+		qs = data.get("questoes", [])
+		if qs and isinstance(qs[0], dict):
+			fa = qs[0].get("fa")
+
+	if not fa:
+		# Placeholder mínimo
+		builder.add_state(0, "q0", 100.0, 100.0, initial=True)
+		return builder.to_string()
+
+	states: List[Dict[str, Any]] = fa.get("states", [])
+	transitions: List[Dict[str, Any]] = fa.get("transitions", [])
+
+	# Posicionamento simples em grid
+	for idx, st in enumerate(states):
+		state_id = int(st.get("id", idx))
+		name = st.get("name", f"q{state_id}")
+		initial = bool(st.get("initial", False))
+		final = bool(st.get("final", False))
+		label = st.get("label", "")
+		x = 100.0 + (idx % 6) * 100.0
+		y = 100.0 + (idx // 6) * 100.0
+		builder.add_state(state_id, name, x, y, initial=initial, final=final, label=label)
+
+	for tr in transitions:
+		from_id = int(tr.get("from"))
+		to_id = int(tr.get("to"))
+		read = tr.get("read")
+		output = tr.get("output", "")
+		builder.add_transition(from_id, to_id, read, output)
+
 	return builder.to_string()
 
 
 def json_to_fa_jff(data: Dict[str, Any]) -> str:
-	builder = JFFFABuilder()
 	fa = data.get("fa")
 	if not fa:
 		qs = data.get("questoes", [])
@@ -102,12 +136,19 @@ def json_to_fa_jff(data: Dict[str, Any]) -> str:
 
 	if not fa:
 		# Placeholder de 2 estados com transições simples
+		builder = JFFFABuilder()
 		builder.add_state(0, "q0", 100.0, 100.0, initial=True)
 		builder.add_state(1, "q1", 200.0, 100.0, final=True)
 		builder.add_transition(0, 1, "a")
 		builder.add_transition(1, 1, "b")
 		return builder.to_string()
 
+	# Verificar se é máquina de Mealy
+	if fa.get("type") == "mealy":
+		return json_to_mealy_jff(data)
+
+	# Autômato finito padrão
+	builder = JFFFABuilder()
 	states: List[Dict[str, Any]] = fa.get("states", [])
 	transitions: List[Dict[str, Any]] = fa.get("transitions", [])
 

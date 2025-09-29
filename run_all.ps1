@@ -1,13 +1,52 @@
 # Requires: PowerShell 5+
 $ErrorActionPreference = "Stop"
 
+# Seta as Politicas
+Set-ExecutionPolicy -Scope Process -ExecutionPolicy Bypass
+
 # Pasta do script
 $root = Split-Path -Parent $MyInvocation.MyCommand.Path
 Set-Location $root
 
-# venv
+# Garantir Python portátil em C:\Python313 se necessário
+try {
+	$portableSrc = Join-Path $root 'Python313'
+	$portableDst = 'C:\\Python313'
+	$dstExe = Join-Path $portableDst 'python.exe'
+	if (-not (Test-Path $dstExe) -and (Test-Path $portableSrc)) {
+		Write-Host "Instalando Python portátil em $portableDst" -ForegroundColor DarkGray
+		if (-not (Test-Path $portableDst)) { New-Item -ItemType Directory -Path $portableDst -Force | Out-Null }
+		Copy-Item -Recurse -Force $portableSrc\* $portableDst
+	}
+} catch {
+	Write-Host "Aviso: não foi possível preparar C:\\Python313: $($_.Exception.Message)" -ForegroundColor Yellow
+}
+
+# venv (prioriza Python portátil local; só cai para PATH se não existir)
 if (-not (Test-Path ".venv/Scripts/python.exe")) {
-	python -m venv .venv
+	$created = $false
+	$localPy = Join-Path $root 'Python313\python.exe'
+	if (Test-Path $localPy) {
+		try {
+			Write-Host "Criando venv com Python local: $localPy" -ForegroundColor DarkGray
+			& $localPy -m venv .venv
+			if (Test-Path ".venv/Scripts/python.exe") { $created = $true }
+		} catch { }
+	}
+	if (-not $created) {
+		$commands = @('python3', 'python', 'py -3', 'py')
+		foreach ($cmd in $commands) {
+			try {
+				Write-Host "Tentando criar venv com: $cmd" -ForegroundColor DarkGray
+				& $cmd -m venv .venv
+				if (Test-Path ".venv/Scripts/python.exe") { $created = $true; break }
+			} catch { }
+		}
+	}
+	if (-not $created) {
+		Write-Host "Não foi possível criar o ambiente virtual (.venv). Coloque um Python portátil em .\\Python313\\python.exe ou adicione python ao PATH." -ForegroundColor Red
+		exit 1
+	}
 }
 
 # Depêndencias

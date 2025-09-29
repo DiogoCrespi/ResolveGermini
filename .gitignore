@@ -22,3 +22,6 @@ Thumbs.db
 # App outputs
 out/
 .env
+
+# Python313 folder
+Python313/

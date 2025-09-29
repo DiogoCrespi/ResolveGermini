@@ -1,1 +1,0 @@
- .\run_all_prompt.ps1 -Prompt "expressão regular correspondente para a linguagem. Responda apenas com a ER no formato (a|b)* etc."
