@@ -58,6 +58,45 @@ class JFFMealyBuilder:
 		Path(path).write_text(self.to_string(), encoding="utf-8")
 
 
+class JFFPDABuilder:
+	def __init__(self) -> None:
+		self.doc = ET.Element("structure")
+		type_el = ET.SubElement(self.doc, "type")
+		type_el.text = "pda"
+		self.automaton = ET.SubElement(self.doc, "automaton")
+		self._has_state = False
+
+	def add_state(self, state_id: int, name: str, x: float, y: float, initial: bool = False, final: bool = False, label: str = "") -> None:
+		st = ET.SubElement(self.automaton, "state", {"id": str(state_id), "name": name})
+		ET.SubElement(st, "x").text = str(x)
+		ET.SubElement(st, "y").text = str(y)
+		if initial:
+			ET.SubElement(st, "initial")
+		if final:
+			ET.SubElement(st, "final")
+		if label:
+			ET.SubElement(st, "label").text = label
+		self._has_state = True
+
+	def add_transition(self, from_id: int, to_id: int, read: Optional[str], pop: str = "", push: str = "") -> None:
+		tr = ET.SubElement(self.automaton, "transition")
+		ET.SubElement(tr, "from").text = str(from_id)
+		ET.SubElement(tr, "to").text = str(to_id)
+		ET.SubElement(tr, "read").text = (read or "")
+		ET.SubElement(tr, "pop").text = pop
+		ET.SubElement(tr, "push").text = push
+
+	def to_string(self) -> str:
+		# Evita automaton vazio
+		if not self._has_state:
+			self.add_state(0, "q0", 100.0, 100.0, initial=True, label="Inicial")
+		return _serialize_jflap_xml(self.doc)
+
+	def write(self, path: str) -> None:
+		Path(path).parent.mkdir(parents=True, exist_ok=True)
+		Path(path).write_text(self.to_string(), encoding="utf-8")
+
+
 class JFFFABuilder:
 	def __init__(self) -> None:
 		self.doc = ET.Element("structure")
@@ -127,6 +166,49 @@ def json_to_mealy_jff(data: Dict[str, Any]) -> str:
 	return builder.to_string()
 
 
+def json_to_pda_jff(data: Dict[str, Any]) -> str:
+	pda = data.get("pda")
+	if not pda:
+		qs = data.get("questoes", [])
+		if qs and isinstance(qs[0], dict):
+			pda = qs[0].get("pda")
+
+	if not pda:
+		# Placeholder de PDA simples
+		builder = JFFPDABuilder()
+		builder.add_state(0, "q0", 100.0, 100.0, initial=True, label="Inicial")
+		builder.add_state(1, "q1", 200.0, 100.0, final=True, label="Aceitacao")
+		builder.add_transition(0, 0, "a", "Z", "AZ")
+		builder.add_transition(0, 1, "b", "A", "")
+		return builder.to_string()
+
+	# Autômato de pilha
+	builder = JFFPDABuilder()
+	states: List[Dict[str, Any]] = pda.get("states", [])
+	transitions: List[Dict[str, Any]] = pda.get("transitions", [])
+
+	# Posicionamento simples em grid
+	for idx, st in enumerate(states):
+		state_id = int(st.get("id", idx))
+		name = st.get("name", f"q{state_id}")
+		initial = bool(st.get("initial", False))
+		final = bool(st.get("final", False))
+		label = st.get("label", "")
+		x = 100.0 + (idx % 6) * 100.0
+		y = 100.0 + (idx // 6) * 100.0
+		builder.add_state(state_id, name, x, y, initial=initial, final=final, label=label)
+
+	for tr in transitions:
+		from_id = int(tr.get("from"))
+		to_id = int(tr.get("to"))
+		read = tr.get("read")
+		pop = tr.get("pop", "")
+		push = tr.get("push", "")
+		builder.add_transition(from_id, to_id, read, pop, push)
+
+	return builder.to_string()
+
+
 def json_to_fa_jff(data: Dict[str, Any]) -> str:
 	fa = data.get("fa")
 	if not fa:
@@ -146,6 +228,10 @@ def json_to_fa_jff(data: Dict[str, Any]) -> str:
 	# Verificar se é máquina de Mealy
 	if fa.get("type") == "mealy":
 		return json_to_mealy_jff(data)
+
+	# Verificar se é PDA
+	if fa.get("type") == "pda":
+		return json_to_pda_jff(data)
 
 	# Autômato finito padrão
 	builder = JFFFABuilder()
@@ -173,6 +259,12 @@ def json_to_fa_jff(data: Dict[str, Any]) -> str:
 
 def write_mealy_jff_file(data: Dict[str, Any], out_path: str) -> None:
 	jff = json_to_mealy_jff(data)
+	Path(out_path).parent.mkdir(parents=True, exist_ok=True)
+	Path(out_path).write_text(jff, encoding="utf-8")
+
+
+def write_pda_jff_file(data: Dict[str, Any], out_path: str) -> None:
+	jff = json_to_pda_jff(data)
 	Path(out_path).parent.mkdir(parents=True, exist_ok=True)
 	Path(out_path).write_text(jff, encoding="utf-8")
 

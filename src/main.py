@@ -7,7 +7,7 @@ from typing import Dict, Any, List
 from .config import INPUT_DIR_DEFAULT, OUTPUT_DIR_DEFAULT, MAX_QUEST_PER_BLOCK
 from .extractor import extract_text
 from .gemini_client import extract_with_gemini, merge_blocks, segment_text_into_questions
-from .jff_converter import write_mealy_jff_file, write_fa_jff_file
+from .jff_converter import write_mealy_jff_file, write_fa_jff_file, write_pda_jff_file
 
 
 STATUS_FILE = "status.json"
@@ -67,8 +67,19 @@ def _write_per_question_outputs(stem: str, out_dir: Path, q: Dict[str, Any], jff
 		solved_dir.mkdir(parents=True, exist_ok=True)
 		jff_path = solved_dir / f"{base}.jff"
 		per_data = {"questoes": [q]}
+		
+		# Detectar se é questão de PDA baseado no contexto ou campo pda
+		contexto = (q.get("contexto") or "").lower()
+		is_pda_question = (
+			("autômato de pilha" in contexto or "pushdown" in contexto or "pda" in contexto or "pilha" in contexto) and
+			("construa" in contexto or "construir" in contexto) and
+			(q.get("pda") and q.get("pda").get("type") == "pda")
+		)
+		
 		if jff_type == "mealy":
 			write_mealy_jff_file(per_data, str(jff_path))
+		elif is_pda_question:
+			write_pda_jff_file(per_data, str(jff_path))
 		elif jff_type == "fa":
 			write_fa_jff_file(per_data, str(jff_path))
 
@@ -166,8 +177,8 @@ def process_file(file_path: Path, out_dir: Path, jff_type: str = "fa", refresh: 
 			full_prompt = enunciado if not contexto else (contexto.strip() + "\n\nSubitem:\n" + enunciado)
 			resp = extract_with_gemini(full_prompt)
 			qr = (resp.get("questoes") or [None])[0] or {}
-			# Incorporar possíveis campos retornados (fa, alternativas, correta, explicacao)
-			for k in ["fa", "alternativas", "correta", "explicacao"]:
+			# Incorporar possíveis campos retornados (fa, pda, alternativas, correta, explicacao, cyk_result)
+			for k in ["fa", "pda", "alternativas", "correta", "explicacao", "cyk_result"]:
 				if k in qr:
 					q[k] = qr[k]
 		# Saídas por questão

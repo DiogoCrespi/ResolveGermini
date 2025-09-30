@@ -18,14 +18,14 @@ USER_PROMPT = os.getenv("USER_PROMPT", "").strip()
 
 # Carrega exemplo de formato (se existir)
 FORMAT_EXAMPLE = None
-for candidate in ["Automato_Finito.xml", "Automato_Finito.jff"]:
+for candidate in ["Pilha.xml", "Automato_Finito.xml", "Automato_Finito.jff"]:
 	p = Path(candidate)
 	if p.exists() and p.is_file():
 		FORMAT_EXAMPLE = p.read_text(encoding="utf-8")
 		break
 
 SYSTEM_PROMPT_BASE_FA = (
-	"Você é um extrator e sintetizador de autômatos finitos. Para cada questão do texto, "
+	"Você é um especialista em Teoria da Computação focado em linguagens livres de contexto. Para cada questão do texto, "
 	"retorne EM JSON VÁLIDO o objeto: {\n"
 	"  \"questoes\": [\n"
 	"    {\n"
@@ -34,15 +34,16 @@ SYSTEM_PROMPT_BASE_FA = (
 	"      \"alternativas\": [],\n"
 	"      \"correta\": null,\n"
 	"      \"explicacao\": \"S -> aSb | aSbb | e\",\n"
-	"      \"fa\": {\n"
-	"        \"alphabet\": [\"a\", \"b\"],\n"
-	"        \"states\": [ { \"id\": 0, \"name\": \"q0\", \"initial\": true, \"final\": false }, { \"id\": 1, \"name\": \"q1\", \"initial\": false, \"final\": true } ],\n"
-	"        \"transitions\": [ { \"from\": 0, \"to\": 1, \"read\": \"a\" }, { \"from\": 1, \"to\": 0, \"read\": \"a\" }, { \"from\": 0, \"to\": 0, \"read\": \"b\" }, { \"from\": 1, \"to\": 1, \"read\": \"b\" } ]\n"
-	"      }\n"
+	"      \"pda\": {\n"
+	"        \"type\": \"pda\",\n"
+	"        \"states\": [ { \"id\": 0, \"name\": \"q0\", \"initial\": true, \"final\": false, \"label\": \"Le 'a's\" }, { \"id\": 1, \"name\": \"q1\", \"initial\": false, \"final\": true, \"label\": \"Aceitacao\" } ],\n"
+	"        \"transitions\": [ { \"from\": 0, \"to\": 0, \"read\": \"a\", \"pop\": \"Z\", \"push\": \"XZ\" }, { \"from\": 0, \"to\": 1, \"read\": \"b\", \"pop\": \"X\", \"push\": \"\" } ]\n"
+	"      },\n"
+	"      \"cyk_result\": null\n"
 	"    }\n"
 	"  ]\n"
 	"}\n"
-	"Regras: 1) SEM TEXTO fora do JSON. 2) Se não houver FA aplicável, use fa com arrays vazios. 3) read vazio representa epsilon. 4) IDs dos estados devem ser inteiros e únicos. 5) Marque exatamente um estado initial=true. 6) No campo 'explicacao', RETORNE APENAS as regras de produção da gramática livre de contexto (GLC) correspondente à linguagem. FORMATO: 'S -> r1 | r2, A -> ra1 | ...'. Use 'e' para epsilon. EXEMPLOS: L = {anbm | 0 <= n <= m <= 2n} → S -> aSb | aSbb | e. L = {anbmck | m = n + k} → S -> AB, A -> aAb | e, B -> bBc | e. L = {anbmck | m > n + k} → S -> AB, A -> aAb | e, B -> bBc | D, D -> bD | b. NÃO escreva texto descritivo nesse campo, apenas as regras de produção. 7) Para questões de LEMA DO BOMBEAMENTO (provar que uma linguagem NÃO é regular): no campo 'explicacao', siga exatamente as 4 etapas: 1) Assuma L regular e escolha m>0; 2) Escolha w ∈ L com |w| > m; 3) Mostre que w = xyz com |y| ≥ 1 e |xy| ≤ m; 4) Demonstre que xy'z ∉ L para algum i ≥ 0, contradizendo a regularidade. Use formato: 'Lema bombeamento: 1) m=... 2) w=... 3) w=xyz onde... 4) Para i=... temos xy'z=... ∉ L'. 8) Para questões de MÁQUINA DE MEALY: quando solicitado construir uma máquina de Mealy, use o campo 'fa' com type='mealy' e inclua 'labels' nos estados (ex: 'label': 'R$1,00') e 'outputs' nas transições (ex: 'output': 'moeda'). Exemplo: {\"type\": \"mealy\", \"states\": [{\"id\": 0, \"name\": \"q0\", \"initial\": true, \"label\": \"inicial\"}, {\"id\": 1, \"name\": \"q1\", \"label\": \"R$1,00\"}], \"transitions\": [{\"from\": 0, \"to\": 1, \"read\": \"a\", \"output\": \"moeda\"}]}."
+	"Regras: 1) SEM TEXTO fora do JSON. 2) Para questões de GRAMÁTICA LIVRE DE CONTEXTO: no campo 'explicacao', RETORNE APENAS as regras de produção da GLC. FORMATO: 'S -> r1 | r2, A -> ra1 | ...'. Use 'e' para epsilon. 3) Para questões de AUTÔMATO DE PILHA (PDA): NÃO use o campo 'fa', use APENAS o campo 'pda' com type='pda'. Estados devem ter 'label' descritivo. Transições devem incluir 'read', 'pop' e 'push'. Use 'Z' como símbolo inicial da pilha. 4) Para questões de ALGORITMO CYK: no campo 'cyk_result', retorne 'true' se a cadeia pertence à linguagem, 'false' caso contrário, seguido da tabela CYK. 5) Para questões de FORMA NORMAL DE GREIBACH: no campo 'explicacao', mostre a conversão passo a passo. 6) Para LEMA DO BOMBEAMENTO (provar que NÃO é livre de contexto): no campo 'explicacao', siga as 5 etapas: 1) Assuma L livre de contexto e escolha p>0; 2) Escolha w ∈ L com |w| > p; 3) Mostre que w = uvxyz com |vxy| ≤ p e |vy| ≥ 1; 4) Demonstre que uv^ixy^iz ∉ L para algum i ≥ 0; 5) Conclua que L não é livre de contexto. IMPORTANTE: Se o contexto menciona 'autômato de pilha', 'pushdown' ou 'PDA', use APENAS o campo 'pda', NÃO use 'fa'."
 )
 
 SYSTEM_PROMPT_QA = (
