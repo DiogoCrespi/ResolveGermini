@@ -4,9 +4,9 @@ import os
 from pathlib import Path
 from typing import Dict, Any, List
 
-from .config import INPUT_DIR_DEFAULT, OUTPUT_DIR_DEFAULT, MAX_QUEST_PER_BLOCK
+from .config import INPUT_DIR_DEFAULT, OUTPUT_DIR_DEFAULT, MAX_QUEST_PER_BLOCK, AI_MODEL
 from .extractor import extract_text
-from .gemini_client import extract_with_gemini, merge_blocks, segment_text_into_questions
+from .ai_client import extract_with_ai, merge_blocks, segment_text_into_questions, validate_grammars
 from .jff_converter import write_mealy_jff_file, write_fa_jff_file, write_pda_jff_file
 
 
@@ -112,7 +112,40 @@ def _write_concatenated_explanations(stem: str, out_dir: Path, questions: List[D
 	(solved_dir / f"{stem}_explicacoes.txt").write_text("\n".join(lines) + "\n", encoding="utf-8")
 
 
+def _write_grammar_corrections(stem: str, out_dir: Path, corrections: List[Dict[str, Any]], solved_subdir: str) -> None:
+	"""Escreve arquivo com correções das gramáticas"""
+	lines: List[str] = []
+	lines.append("=== CORREÇÕES DAS GRAMÁTICAS ===\n")
+	
+	for corr in corrections:
+		qid = corr.get("id", "")
+		enunciado = corr.get("enunciado", "")
+		gramatica_original = corr.get("gramatica_original", "")
+		gramatica_corrigida = corr.get("gramatica_corrigida", "")
+		explicacao = corr.get("explicacao_correcao", "")
+		valida = corr.get("valida", False)
+		
+		lines.append(f"[{qid}] {enunciado}")
+		lines.append(f"Gramática original: {gramatica_original}")
+		
+		if valida:
+			lines.append("✅ GRAMÁTICA CORRETA")
+		else:
+			lines.append("❌ GRAMÁTICA INCORRETA")
+			lines.append(f"Gramática corrigida: {gramatica_corrigida}")
+			if explicacao:
+				lines.append(explicacao)
+		
+		lines.append("")  # Linha em branco
+	
+	solved_dir = out_dir / solved_subdir
+	solved_dir.mkdir(parents=True, exist_ok=True)
+	txt_path = solved_dir / f"{stem}_correcoes_gramaticas.txt"
+	txt_path.write_text("\n".join(lines), encoding="utf-8")
+
+
 def process_file(file_path: Path, out_dir: Path, jff_type: str = "fa", refresh: bool = False, solved_subdir: str = "resolvidas") -> None:
+	print(f"🤖 Processando com modelo de IA: {AI_MODEL.upper()}")
 	status = load_status(out_dir)
 	fname = file_path.name
 	entry = status.get(fname, {})
@@ -168,14 +201,14 @@ def process_file(file_path: Path, out_dir: Path, jff_type: str = "fa", refresh: 
 		contexto = q.get("contexto") or ""
 		if ANSWER_MODE == "qa":
 			full_prompt = enunciado if not contexto else (contexto.strip() + "\n\nSubitem:\n" + enunciado)
-			resp = extract_with_gemini(full_prompt)
+			resp = extract_with_ai(full_prompt)
 			qr = (resp.get("questoes") or [None])[0] or {}
 			if "resposta" in qr:
 				q["resposta"] = qr["resposta"]
 		else:
-			# FA: pedir ao Gemini um FA para este enunciado, incluindo contexto da questão-mãe quando houver
+			# FA: pedir ao modelo de IA um FA para este enunciado, incluindo contexto da questão-mãe quando houver
 			full_prompt = enunciado if not contexto else (contexto.strip() + "\n\nSubitem:\n" + enunciado)
-			resp = extract_with_gemini(full_prompt)
+			resp = extract_with_ai(full_prompt)
 			qr = (resp.get("questoes") or [None])[0] or {}
 			# Incorporar possíveis campos retornados (fa, pda, alternativas, correta, explicacao, cyk_result)
 			for k in ["fa", "pda", "alternativas", "correta", "explicacao", "cyk_result"]:
@@ -199,6 +232,15 @@ def process_file(file_path: Path, out_dir: Path, jff_type: str = "fa", refresh: 
 		write_fa_jff_file(consolidated, str(jff_out))
 		# Explicações consolidadas em um único TXT dentro de out/solved_subdir
 		_write_concatenated_explanations(file_path.stem, out_dir, processed_questions, solved_subdir)
+		
+		# 5) Validação das gramáticas (apenas para questões com gramáticas)
+		print("Validando gramáticas...")
+		corrections = validate_grammars(processed_questions)
+		if corrections.get("questoes"):
+			_write_grammar_corrections(file_path.stem, out_dir, corrections["questoes"], solved_subdir)
+			print(f"Correções salvas em: {out_dir / solved_subdir / f'{file_path.stem}_correcoes_gramaticas.txt'}")
+		else:
+			print("Nenhuma gramática encontrada para validação.")
 
 
 def main() -> None:

@@ -3,14 +3,19 @@
 Aplicação que:
 - Lê arquivos .pdf e .docx de uma pasta de entrada
 - Extrai e divide questões em blocos (até 30 por bloco)
-- Envia ao Gemini e coleta respostas estruturadas (JSON)
+- Envia para modelos de IA (Gemini, ChatGPT ou DeepSeek) e coleta respostas estruturadas (JSON)
 - Converte o retorno para arquivos .jff (JFLAP)
 - Mantém `status.json` para retomada segura
+
+### Modelos de IA Suportados
+- **Gemini** (Google) - Recomendado
+- **ChatGPT** (OpenAI) - GPT-3.5/GPT-4
+- **DeepSeek** - Modelo alternativo
 
 ### Requisitos
 - Python 3.10+
 - Windows 10/11
-- Chave de API do Gemini em variável de ambiente `GEMINI_API_KEY` (ou `.env`)
+- Chave de API de pelo menos um modelo de IA (ver configuração abaixo)
 
 ### Instalação
 ```bash
@@ -21,22 +26,60 @@ pip install -r requirements.txt
 
 ### Configuração
 Crie um arquivo `.env` (ou use suas variáveis de ambiente):
+
+#### Para usar Gemini (Recomendado):
 ```
-GEMINI_API_KEY=seu_token
-GEMINI_MODEL=gemini-1.5-pro
+AI_MODEL=gemini
+GEMINI_API_KEY=sua_chave_gemini
+GEMINI_MODEL=gemini-2.0-flash
+INPUT_DIR=lerpdf
+OUTPUT_DIR=out
+MAX_QUEST_PER_BLOCK=30
+```
+
+#### Para usar ChatGPT:
+```
+AI_MODEL=gpt
+OPENAI_API_KEY=sua_chave_openai
+GPT_MODEL=gpt-4o-mini
+INPUT_DIR=lerpdf
+OUTPUT_DIR=out
+MAX_QUEST_PER_BLOCK=30
+```
+
+#### Para usar DeepSeek:
+```
+AI_MODEL=deepseek
+DEEPSEEK_API_KEY=sua_chave_deepseek
+DEEPSEEK_MODEL=deepseek-chat
 INPUT_DIR=lerpdf
 OUTPUT_DIR=out
 MAX_QUEST_PER_BLOCK=30
 ```
 
 ### Execução
+
+#### Execução Simples (Script PowerShell):
+```bash
+.\run_all.ps1
+```
+
+#### Execução Manual:
 ```bash
 python -m src.main --in %INPUT_DIR% --out %OUTPUT_DIR%
 ```
 Argumentos:
 - `--in` pasta de entrada (padrão: `INPUT_DIR`)
 - `--out` pasta de saída (padrão: `OUTPUT_DIR`)
-- `--type` tipo de automato JFLAP (mealy|moore|dfa) (padrão: mealy)
+- `--type` tipo de automato JFLAP (mealy|moore|dfa) (padrão: fa)
+
+### Seleção de Modelo de IA
+O sistema detecta automaticamente qual modelo usar baseado na variável `AI_MODEL`:
+- `gemini` - Usa Google Gemini
+- `gpt` - Usa OpenAI ChatGPT  
+- `deepseek` - Usa DeepSeek
+
+Se não especificado, usa Gemini por padrão.
 
 ### Empacotamento (.exe)
 ```bash
@@ -53,3 +96,9 @@ O executável ficará em `dist\automato_app.exe`.
 ### Observações
 - O parser de questões é heurístico; ajuste `splitter` conforme seu padrão de prova.
 - Valide os `.jff` no JFLAP (incluímos verificação básica na geração).
+- Para mais detalhes sobre configuração de modelos de IA, consulte `CONFIGURACAO_IA.md`.
+
+### Troubleshooting
+- **Erro de cota**: Sua conta atingiu o limite. Tente outro modelo de IA.
+- **Chave inválida**: Verifique se a chave de API está correta no `.env`.
+- **Modelo não suportado**: Use `gemini`, `gpt` ou `deepseek` na variável `AI_MODEL`.

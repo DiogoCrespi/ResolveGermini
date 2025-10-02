@@ -66,8 +66,29 @@ if (Test-Path $envPath) {
 	}
 }
 
-if (-not $env:GEMINI_API_KEY) {
-	Write-Host "GEMINI_API_KEY não definida. Defina no .env ou no ambiente." -ForegroundColor Red
+# Verificar se pelo menos uma chave de API está definida
+$aiModel = if ($env:AI_MODEL) { $env:AI_MODEL.ToLower() } else { "gemini" }
+
+if ($aiModel -eq "gpt") {
+	if (-not $env:OPENAI_API_KEY) {
+		Write-Host "AI_MODEL=gpt mas OPENAI_API_KEY nao definida. Defina no .env ou no ambiente." -ForegroundColor Red
+		exit 1
+	}
+	Write-Host "Usando ChatGPT (modelo: $($env:GPT_MODEL))" -ForegroundColor Green
+} elseif ($aiModel -eq "deepseek") {
+	if (-not $env:DEEPSEEK_API_KEY) {
+		Write-Host "AI_MODEL=deepseek mas DEEPSEEK_API_KEY nao definida. Defina no .env ou no ambiente." -ForegroundColor Red
+		exit 1
+	}
+	Write-Host "Usando DeepSeek (modelo: $($env:DEEPSEEK_MODEL))" -ForegroundColor Green
+} elseif ($aiModel -eq "gemini") {
+	if (-not $env:GEMINI_API_KEY) {
+		Write-Host "AI_MODEL=gemini mas GEMINI_API_KEY nao definida. Defina no .env ou no ambiente." -ForegroundColor Red
+		exit 1
+	}
+	Write-Host "Usando Gemini (modelo: $($env:GEMINI_MODEL))" -ForegroundColor Green
+} else {
+	Write-Host "AI_MODEL deve ser 'gemini', 'gpt' ou 'deepseek'. Valor atual: $aiModel" -ForegroundColor Red
 	exit 1
 }
 
@@ -125,5 +146,5 @@ try {
 		Write-Host "Pasta de origem não encontrada: $src" -ForegroundColor Yellow
 	}
 } catch {
-	Write-Host "Falha ao copiar para a Área de Trabalho: $($_.Exception.Message)" -ForegroundColor Red
+	Write-Host "Falha ao copiar para a Area de Trabalho: $($_.Exception.Message)" -ForegroundColor Red
 }

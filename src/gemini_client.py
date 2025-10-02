@@ -166,6 +166,78 @@ def segment_text_into_questions(full_text: str) -> Dict[str, Any]:
 	return _extract_json_from_text(text)
 
 
+SYSTEM_PROMPT_GRAMMAR_VALIDATION = (
+	"Você é um especialista em Teoria da Computação focado em validação de gramáticas livres de contexto. "
+	"Analise as questões fornecidas e valide/corrija as gramáticas geradas. "
+	"Para cada questão, retorne EM JSON VÁLIDO: {\n"
+	"  \"questoes\": [\n"
+	"    {\n"
+	"      \"id\": \"Q1a\",\n"
+	"      \"enunciado\": \"...\",\n"
+	"      \"gramatica_original\": \"S -> AB | CD\",\n"
+	"      \"gramatica_corrigida\": \"S -> AB, A -> aA | a, B -> bB | e\",\n"
+	"      \"explicacao_correcao\": \"A gramática original estava incorreta porque...\",\n"
+	"      \"valida\": true\n"
+	"    }\n"
+	"  ]\n"
+	"}\n"
+	"Regras: 1) SEM TEXTO fora do JSON. 2) Compare a gramática gerada com a linguagem solicitada. "
+	"3) Se estiver incorreta, forneça a gramática corrigida. 4) Explique brevemente o erro e a correção. "
+	"5) Campo 'valida' deve ser true se a gramática original está correta, false caso contrário."
+)
+
+
+@sleep_and_retry
+@limits(calls=RATE_LIMIT_PER_MINUTE, period=60)
+@retry(wait=wait_exponential(multiplier=1, min=1, max=30), stop=stop_after_attempt(5))
+def validate_grammars(questions: List[Dict[str, Any]]) -> Dict[str, Any]:
+	"""Valida e corrige gramáticas de questões de linguagens livres de contexto"""
+	
+	# Filtrar apenas questões que têm gramáticas (explicacao)
+	grammar_questions = []
+	for q in questions:
+		if q.get("explicacao") and q.get("explicacao").strip():
+			grammar_questions.append(q)
+	
+	if not grammar_questions:
+		return {"questoes": []}
+	
+	# Montar prompt com todas as questões
+	questions_text = ""
+	for q in grammar_questions:
+		questions_text += f"ID: {q.get('id', '')}\n"
+		questions_text += f"Enunciado: {q.get('enunciado', '')}\n"
+		questions_text += f"Contexto: {q.get('contexto', '')}\n"
+		questions_text += f"Gramática gerada: {q.get('explicacao', '')}\n\n"
+	
+	prompt = f"{SYSTEM_PROMPT_GRAMMAR_VALIDATION}\n\nQUESTÕES PARA VALIDAÇÃO:\n\n{questions_text}"
+	
+	payload = {
+		"contents": [
+			{
+				"parts": [
+					{"text": prompt}
+				]
+			}
+		]
+	}
+	headers = {
+		"Content-Type": "application/json",
+		"X-goog-api-key": GEMINI_API_KEY,
+	}
+	resp = requests.post(API_URL, headers=headers, data=json.dumps(payload), timeout=120)
+	resp.raise_for_status()
+	data = resp.json()
+	candidates = data.get("candidates", [])
+	if not candidates:
+		return {"questoes": []}
+	parts = candidates[0].get("content", {}).get("parts", [])
+	if not parts or "text" not in parts[0]:
+		return {"questoes": []}
+	text = parts[0]["text"]
+	return _extract_json_from_text(text)
+
+
 def merge_blocks(blocks_results: List[Dict[str, Any]]) -> Dict[str, Any]:
 	merged: Dict[str, Any] = {"questoes": []}
 	for br in blocks_results:
