@@ -42,7 +42,7 @@ def _copy_to_desktop_immediately(stem: str, out_dir: Path, q: Dict[str, Any], so
 	Permite que o usuário trabalhe enquanto o sistema processa outras questões.
 	"""
 	try:
-		desktop = Path.home() / "Desktop" / "resolvidas_automato"
+		desktop = Path.home() / "Desktop" / "resolvidas"
 		desktop.mkdir(parents=True, exist_ok=True)
 		
 		qid = _sanitize_id(q.get("id") or "Q")

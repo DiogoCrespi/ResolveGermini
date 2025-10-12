@@ -95,7 +95,7 @@ O executável ficará em `dist\automato_app.exe`.
 
 ### Otimizações Implementadas
 - **Processamento Paralelo**: Acelera significativamente o Gemini 2.5 usando múltiplas threads
-- **Cópia Imediata**: Questões são copiadas para `Desktop/resolvidas_automato` (apenas TXT e JFF)
+- **Cópia Imediata**: Questões são copiadas para `Desktop/resolvidas` (apenas TXT e JFF)
 - **Geração Inteligente de JFF**: Gera arquivos JFF apenas para questões que realmente precisam
 - **Feedback em Tempo Real**: Mostra progresso e permite trabalho simultâneo
 
