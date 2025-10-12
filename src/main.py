@@ -85,8 +85,9 @@ def _question_needs_jff(q: Dict[str, Any]) -> bool:
 	jff_keywords = [
 		"construa", "construir", "desenhe", "desenhar", "crie", "criar",
 		"autômato", "automato", "pushdown", "pda", "pilha",
-		"máquina", "maquina", "estados", "transições", "transicoes",
-		"diagrama", "grafo", "estrutura", "visual"
+		"máquina", "maquina", "turing", "turing machine", "mt",
+		"estados", "transições", "transicoes", "diagrama", "grafo", 
+		"estrutura", "visual"
 	]
 	
 	# Verificar se o enunciado ou contexto contém palavras-chave de JFF
@@ -98,7 +99,8 @@ def _question_needs_jff(q: Dict[str, Any]) -> bool:
 		(q.get("pda") and q.get("pda").get("type") == "pda") or
 		(q.get("fa") and q.get("fa").get("type") in ["fa", "dfa", "nfa"]) or
 		(q.get("mealy") and q.get("mealy").get("type") == "mealy") or
-		(q.get("moore") and q.get("moore").get("type") == "moore")
+		(q.get("moore") and q.get("moore").get("type") == "moore") or
+		(q.get("turing") and q.get("turing").get("type") == "turing")
 	)
 	
 	# Verificar se é uma questão que NÃO precisa de JFF (apenas gramática, teoria, etc.)

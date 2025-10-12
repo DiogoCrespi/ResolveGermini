@@ -18,7 +18,7 @@ USER_PROMPT = os.getenv("USER_PROMPT", "").strip()
 
 # Carrega exemplo de formato (se existir)
 FORMAT_EXAMPLE = None
-for candidate in ["Pilha.xml", "Automato_Finito.xml", "Automato_Finito.jff"]:
+for candidate in ["Pilha.xml", "Turing_optimized.xml", "Automato_Finito.xml", "Automato_Finito.jff"]:
     p = Path(candidate)
     if p.exists() and p.is_file():
         FORMAT_EXAMPLE = p.read_text(encoding="utf-8")
