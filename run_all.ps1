@@ -106,6 +106,25 @@ Write-Host "   Threads paralelas: $($env:MAX_PARALLEL_WORKERS)" -ForegroundColor
 Write-Host "   Cópia para área de trabalho: $($env:ENABLE_DESKTOP_COPY)" -ForegroundColor White
 Write-Host "   Rate limit: $($env:RATE_LIMIT_PER_MINUTE) req/min" -ForegroundColor White
 
+# Limpar pasta Desktop/resolvidas de forma agressiva (primeira coisa)
+try {
+	$desktop = [Environment]::GetFolderPath('Desktop')
+	$desktopResolvidas = Join-Path $desktop 'resolvidas'
+	if (Test-Path $desktopResolvidas) {
+		Write-Host "Limpando pasta Desktop/resolvidas..." -ForegroundColor Yellow
+		# Força remoção mesmo com arquivos em uso
+		Remove-Item -Recurse -Force -ErrorAction SilentlyContinue $desktopResolvidas
+		# Aguarda um pouco e tenta novamente se ainda existir
+		Start-Sleep -Milliseconds 500
+		if (Test-Path $desktopResolvidas) {
+			Remove-Item -Recurse -Force -ErrorAction SilentlyContinue $desktopResolvidas
+		}
+		Write-Host "Pasta Desktop/resolvidas limpa com sucesso" -ForegroundColor Green
+	}
+} catch {
+	Write-Host "Aviso: Não foi possível limpar Desktop/resolvidas: $($_.Exception.Message)" -ForegroundColor Yellow
+}
+
 # Limpar pasta out e recriar out\resolvidas para reprocessamento completo
 try {
 	$outDir = Join-Path $root 'out'
@@ -148,7 +167,15 @@ try {
 	$src = Join-Path $root 'out\resolvidas'
 	$dst = Join-Path $desktop 'resolvidas'
 	if (Test-Path $src) {
-		if (Test-Path $dst) { Remove-Item -Recurse -Force $dst }
+		# Limpar pasta de destino de forma agressiva antes de copiar
+		if (Test-Path $dst) { 
+			Write-Host "Limpando pasta de destino antes da cópia..." -ForegroundColor Yellow
+			Remove-Item -Recurse -Force -ErrorAction SilentlyContinue $dst
+			Start-Sleep -Milliseconds 500
+			if (Test-Path $dst) {
+				Remove-Item -Recurse -Force -ErrorAction SilentlyContinue $dst
+			}
+		}
 		Copy-Item -Recurse -Force $src $dst
 		# Copiar também utilitários para a pasta de destino
 		try {
