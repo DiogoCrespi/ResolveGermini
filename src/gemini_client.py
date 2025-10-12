@@ -89,7 +89,7 @@ SYSTEM_PROMPT_BASE_FA = (
 	"    }\n"
 	"  ]\n"
 	"}\n\n"
-	"REGRAS DE RESPOSTA:\n"
+	"REGRAS DE RESPOSTA (SEJA CONCISO E DIRETO):\n"
 	"1) SEM TEXTO fora do JSON\n"
 	"2) Para questões de GRAMÁTICA LIVRE DE CONTEXTO: no campo 'explicacao', RETORNE APENAS as regras de produção da GLC. FORMATO: 'S -> r1 | r2, A -> ra1 | ...'. Use 'e' para epsilon. EXEMPLO: Para L2 = {a^n b^m b^m a^n | n > 0 e m > 0}, use S -> aSa | aMa, M -> bMb | bb\n"
 	"3) Para questões de AUTÔMATO DE PILHA (PDA): NÃO use o campo 'fa', use APENAS o campo 'pda' com type='pda'. Estados devem ter 'label' descritivo. Transições devem incluir 'read', 'pop' e 'push'. Use 'Z' como símbolo inicial da pilha\n"
@@ -100,7 +100,16 @@ SYSTEM_PROMPT_BASE_FA = (
 	"8) Para questões de SIMPLIFICAÇÃO DE GRAMÁTICAS: siga a ordem: remover ε-produções, remover produções unitárias, remover símbolos inúteis\n"
 	"9) Para questões de DERIVAÇÕES: mostre derivações leftmost detalhadas com notação ⇒. EXEMPLO: Para L2 = {a^n b^m b^m a^n}, com S -> aSa | aMa, M -> bMb | bb: S ⇒ aSa ⇒ aaSaa ⇒ aaMaa ⇒ aabMbaa ⇒ aabbbaa\n"
 	"10) Para questões de PROPRIEDADES DE FECHAMENTO: cite se GLCs são fechadas sob união, concatenação, fecho de Kleene (sim) ou interseção e complementação (não)\n"
-	"IMPORTANTE: Se o contexto menciona 'autômato de pilha', 'pushdown' ou 'PDA', use APENAS o campo 'pda', NÃO use 'fa'."
+	"IMPORTANTE: Se o contexto menciona 'autômato de pilha', 'pushdown' ou 'PDA', use APENAS o campo 'pda', NÃO use 'fa'.\n\n"
+	"DIRETRIZES DE CONCISÃO:\n"
+	"- Seja DIRETO e OBJETIVO\n"
+	"- Evite explicações longas ou redundantes\n"
+	"- Foque nos RESULTADOS e PROCESSOS essenciais\n"
+	"- Para bombeamento: mostre apenas os 5 passos essenciais\n"
+	"- Para CYK: mostre apenas a tabela final e resultado\n"
+	"- Para conversões: mostre apenas os passos principais\n"
+	"- Para derivações: mostre apenas a sequência de passos\n"
+	"- NÃO repita informações já dadas no enunciado"
 )
 
 SYSTEM_PROMPT_QA = (
@@ -285,7 +294,13 @@ SYSTEM_PROMPT_GRAMMAR_VALIDATION = (
 	"4) Explique o erro específico e a correção aplicada\n"
 	"5) Campo 'valida' deve ser true se a gramática original está correta, false caso contrário\n"
 	"6) Para linguagens complexas, mostre como a gramática corrigida gera exemplos típicos\n"
-	"7) Considere propriedades como ambiguidade, recursão e estrutura da linguagem"
+	"7) Considere propriedades como ambiguidade, recursão e estrutura da linguagem\n\n"
+	"DIRETRIZES DE CONCISÃO:\n"
+	"- Seja DIRETO e OBJETIVO\n"
+	"- Evite explicações longas ou redundantes\n"
+	"- Foque nos PROBLEMAS essenciais\n"
+	"- Explique apenas o necessário para entender a correção\n"
+	"- NÃO repita informações já dadas no enunciado"
 )
 
 
