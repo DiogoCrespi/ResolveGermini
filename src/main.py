@@ -32,6 +32,51 @@ def _sanitize_id(raw_id: str) -> str:
 	return s
 
 
+def _question_needs_jff(q: Dict[str, Any]) -> bool:
+	"""
+	Determina se uma questão realmente precisa de um arquivo JFF.
+	Retorna True apenas para questões que solicitam autômatos, PDAs ou estruturas visuais.
+	"""
+	enunciado = (q.get("enunciado") or "").lower()
+	contexto = (q.get("contexto") or "").lower()
+	
+	# Palavras-chave que indicam necessidade de JFF
+	jff_keywords = [
+		"construa", "construir", "desenhe", "desenhar", "crie", "criar",
+		"autômato", "automato", "pushdown", "pda", "pilha",
+		"máquina", "maquina", "estados", "transições", "transicoes",
+		"diagrama", "grafo", "estrutura", "visual"
+	]
+	
+	# Verificar se o enunciado ou contexto contém palavras-chave de JFF
+	texto_completo = f"{enunciado} {contexto}"
+	has_jff_keywords = any(keyword in texto_completo for keyword in jff_keywords)
+	
+	# Verificar se a questão tem campos de autômato preenchidos
+	has_automaton_data = (
+		(q.get("pda") and q.get("pda").get("type") == "pda") or
+		(q.get("fa") and q.get("fa").get("type") in ["fa", "dfa", "nfa"]) or
+		(q.get("mealy") and q.get("mealy").get("type") == "mealy") or
+		(q.get("moore") and q.get("moore").get("type") == "moore")
+	)
+	
+	# Verificar se é uma questão que NÃO precisa de JFF (apenas gramática, teoria, etc.)
+	no_jff_keywords = [
+		"defina gramática", "defina glc", "gramática livre de contexto",
+		"regras de produção", "derivação", "derivacao",
+		"lema do bombeamento", "bombeamento", "prove que",
+		"algoritmo cyk", "cyk", "forma normal", "simplifique",
+		"explique", "demonstre", "mostre que", "caracterize"
+	]
+	
+	has_no_jff_keywords = any(keyword in texto_completo for keyword in no_jff_keywords)
+	
+	# A questão precisa de JFF se:
+	# 1. Tem palavras-chave de JFF E tem dados de autômato, OU
+	# 2. Tem palavras-chave de JFF E NÃO tem palavras-chave de "não JFF"
+	return (has_jff_keywords and has_automaton_data) or (has_jff_keywords and not has_no_jff_keywords)
+
+
 def _write_per_question_outputs(stem: str, out_dir: Path, q: Dict[str, Any], jff_type: str, solved_subdir: str) -> None:
 	qid = _sanitize_id(q.get("id") or "Q")
 	base = f"{stem}_{qid}"
@@ -61,27 +106,31 @@ def _write_per_question_outputs(stem: str, out_dir: Path, q: Dict[str, Any], jff
 	# JSON por questão
 	json_path = out_dir / f"{base}.json"
 	json_path.write_text(json.dumps(q, ensure_ascii=False, indent=2), encoding="utf-8")
-	# JFF por questão (apenas quando NÃO estiver em modo QA)
+	# JFF por questão (apenas quando NÃO estiver em modo QA e a questão realmente precisar de JFF)
 	if ANSWER_MODE != "qa":
-		solved_dir = out_dir / solved_subdir
-		solved_dir.mkdir(parents=True, exist_ok=True)
-		jff_path = solved_dir / f"{base}.jff"
-		per_data = {"questoes": [q]}
+		# Verificar se a questão realmente precisa de um arquivo JFF
+		needs_jff = _question_needs_jff(q)
 		
-		# Detectar se é questão de PDA baseado no contexto ou campo pda
-		contexto = (q.get("contexto") or "").lower()
-		is_pda_question = (
-			("autômato de pilha" in contexto or "pushdown" in contexto or "pda" in contexto or "pilha" in contexto) and
-			("construa" in contexto or "construir" in contexto) and
-			(q.get("pda") and q.get("pda").get("type") == "pda")
-		)
-		
-		if jff_type == "mealy":
-			write_mealy_jff_file(per_data, str(jff_path))
-		elif is_pda_question:
-			write_pda_jff_file(per_data, str(jff_path))
-		elif jff_type == "fa":
-			write_fa_jff_file(per_data, str(jff_path))
+		if needs_jff:
+			solved_dir = out_dir / solved_subdir
+			solved_dir.mkdir(parents=True, exist_ok=True)
+			jff_path = solved_dir / f"{base}.jff"
+			per_data = {"questoes": [q]}
+			
+			# Detectar se é questão de PDA baseado no contexto ou campo pda
+			contexto = (q.get("contexto") or "").lower()
+			is_pda_question = (
+				("autômato de pilha" in contexto or "pushdown" in contexto or "pda" in contexto or "pilha" in contexto) and
+				("construa" in contexto or "construir" in contexto) and
+				(q.get("pda") and q.get("pda").get("type") == "pda")
+			)
+			
+			if jff_type == "mealy":
+				write_mealy_jff_file(per_data, str(jff_path))
+			elif is_pda_question:
+				write_pda_jff_file(per_data, str(jff_path))
+			elif jff_type == "fa":
+				write_fa_jff_file(per_data, str(jff_path))
 
 
 def _write_concatenated_answers(stem: str, out_dir: Path, questions: List[Dict[str, Any]]) -> None:
@@ -216,6 +265,15 @@ def process_file(file_path: Path, out_dir: Path, jff_type: str = "fa", refresh: 
 					q[k] = qr[k]
 		# Saídas por questão
 		_write_per_question_outputs(file_path.stem, out_dir, q, jff_type, solved_subdir)
+		
+		# Informar se a questão precisa ou não de JFF
+		if ANSWER_MODE != "qa":
+			needs_jff = _question_needs_jff(q)
+			if needs_jff:
+				print(f"✅ {qid}: Gerando arquivo JFF (questão de autômato/PDA)")
+			else:
+				print(f"ℹ️  {qid}: Pulando JFF (questão de gramática/teoria)")
+		
 		processed_questions.append(q)
 		# atualizar status
 		done_ids.add(qid)
@@ -227,9 +285,17 @@ def process_file(file_path: Path, out_dir: Path, jff_type: str = "fa", refresh: 
 	if ANSWER_MODE == "qa":
 		_write_concatenated_answers(file_path.stem, out_dir, processed_questions)
 	else:
-		consolidated = {"questoes": processed_questions}
-		jff_out = out_dir / f"{file_path.stem}.jff"
-		write_fa_jff_file(consolidated, str(jff_out))
+		# Filtrar apenas questões que realmente precisam de JFF para o arquivo consolidado
+		jff_questions = [q for q in processed_questions if _question_needs_jff(q)]
+		
+		if jff_questions:
+			consolidated = {"questoes": jff_questions}
+			jff_out = out_dir / f"{file_path.stem}.jff"
+			write_fa_jff_file(consolidated, str(jff_out))
+			print(f"📁 Arquivo JFF consolidado criado com {len(jff_questions)} questões que precisam de JFF")
+		else:
+			print("ℹ️  Nenhuma questão precisa de arquivo JFF consolidado")
+		
 		# Explicações consolidadas em um único TXT dentro de out/solved_subdir
 		_write_concatenated_explanations(file_path.stem, out_dir, processed_questions, solved_subdir)
 		
