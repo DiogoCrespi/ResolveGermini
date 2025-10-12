@@ -103,12 +103,46 @@ Ou instale todas as dependências:
 pip install -r requirements.txt
 ```
 
+## Configurações de Otimização
+
+### Processamento Paralelo
+```bash
+# Número máximo de threads paralelas (padrão: 4)
+set MAX_PARALLEL_WORKERS=4
+
+# Para Gemini 2.5 (mais lento), use mais threads
+set MAX_PARALLEL_WORKERS=6
+
+# Para Gemini 2.0 (mais rápido), use menos threads
+set MAX_PARALLEL_WORKERS=2
+```
+
+### Cópia para Área de Trabalho
+```bash
+# Habilitar cópia imediata de questões resolvidas (padrão: true)
+set ENABLE_DESKTOP_COPY=true
+
+# Desabilitar se não quiser cópia automática
+set ENABLE_DESKTOP_COPY=false
+```
+
+### Rate Limiting
+```bash
+# Ajustar limite de requisições por minuto (padrão: 30)
+set RATE_LIMIT_PER_MINUTE=30
+
+# Para APIs mais lentas, reduzir o limite
+set RATE_LIMIT_PER_MINUTE=20
+```
+
 ## Notas Importantes
 
 1. **Custos**: ChatGPT e DeepSeek podem ter custos associados dependendo do seu plano
 2. **Rate Limits**: Todos os modelos têm limites de taxa configuráveis via `RATE_LIMIT_PER_MINUTE`
 3. **Qualidade**: Diferentes modelos podem produzir resultados com qualidades diferentes
 4. **Disponibilidade**: Verifique se sua chave de API tem acesso ao modelo escolhido
+5. **Processamento Paralelo**: Acelera significativamente o Gemini 2.5, permitindo trabalho simultâneo
+6. **Cópia Imediata**: Questões são copiadas para `Desktop/resolvidas_automato` assim que resolvidas
 
 ## Troubleshooting
 

@@ -23,3 +23,7 @@ INPUT_DIR_DEFAULT = os.getenv("INPUT_DIR", "lerpdf")
 OUTPUT_DIR_DEFAULT = os.getenv("OUTPUT_DIR", "out")
 MAX_QUEST_PER_BLOCK = int(os.getenv("MAX_QUEST_PER_BLOCK", "30"))
 RATE_LIMIT_PER_MINUTE = int(os.getenv("RATE_LIMIT_PER_MINUTE", "30"))
+
+# Configurações de processamento paralelo
+MAX_PARALLEL_WORKERS = int(os.getenv("MAX_PARALLEL_WORKERS", "4"))  # Máximo de threads paralelas
+ENABLE_DESKTOP_COPY = os.getenv("ENABLE_DESKTOP_COPY", "true").lower() == "true"  # Copiar para área de trabalho

@@ -1,10 +1,14 @@
 import argparse
 import json
 import os
+import shutil
 from pathlib import Path
 from typing import Dict, Any, List
+from concurrent.futures import ThreadPoolExecutor, as_completed
+import threading
+import time
 
-from .config import INPUT_DIR_DEFAULT, OUTPUT_DIR_DEFAULT, MAX_QUEST_PER_BLOCK, AI_MODEL
+from .config import INPUT_DIR_DEFAULT, OUTPUT_DIR_DEFAULT, MAX_QUEST_PER_BLOCK, AI_MODEL, MAX_PARALLEL_WORKERS, ENABLE_DESKTOP_COPY
 from .extractor import extract_text
 from .ai_client import extract_with_ai, merge_blocks, segment_text_into_questions, validate_grammars
 from .jff_converter import write_mealy_jff_file, write_fa_jff_file, write_pda_jff_file
@@ -30,6 +34,43 @@ def _sanitize_id(raw_id: str) -> str:
 	s = (raw_id or "").strip()
 	s = s.replace(" ", "_")
 	return s
+
+
+def _copy_to_desktop_immediately(stem: str, out_dir: Path, q: Dict[str, Any], solved_subdir: str) -> None:
+	"""
+	Copia imediatamente os arquivos de uma questão resolvida para a área de trabalho.
+	Permite que o usuário trabalhe enquanto o sistema processa outras questões.
+	"""
+	try:
+		desktop = Path.home() / "Desktop" / "resolvidas_automato"
+		desktop.mkdir(parents=True, exist_ok=True)
+		
+		qid = _sanitize_id(q.get("id") or "Q")
+		base = f"{stem}_{qid}"
+		
+		# Copiar arquivo TXT (sempre existe)
+		txt_src = out_dir / f"{base}.txt"
+		if txt_src.exists():
+			txt_dst = desktop / f"{base}.txt"
+			shutil.copy2(txt_src, txt_dst)
+		
+		# Copiar arquivo JSON (sempre existe)
+		json_src = out_dir / f"{base}.json"
+		if json_src.exists():
+			json_dst = desktop / f"{base}.json"
+			shutil.copy2(json_src, json_dst)
+		
+		# Copiar arquivo JFF (se existir)
+		if ANSWER_MODE != "qa":
+			jff_src = out_dir / solved_subdir / f"{base}.jff"
+			if jff_src.exists():
+				jff_dst = desktop / f"{base}.jff"
+				shutil.copy2(jff_src, jff_dst)
+		
+		print(f"📋 {qid} copiado para área de trabalho: {desktop}")
+		
+	except Exception as e:
+		print(f"⚠️  Erro ao copiar {qid} para área de trabalho: {e}")
 
 
 def _question_needs_jff(q: Dict[str, Any]) -> bool:
@@ -161,6 +202,56 @@ def _write_concatenated_explanations(stem: str, out_dir: Path, questions: List[D
 	(solved_dir / f"{stem}_explicacoes.txt").write_text("\n".join(lines) + "\n", encoding="utf-8")
 
 
+def _process_single_question(q: Dict[str, Any], stem: str, out_dir: Path, jff_type: str, solved_subdir: str, status: Dict[str, Any], fname: str) -> Dict[str, Any]:
+	"""
+	Processa uma única questão e retorna o resultado.
+	Usado para processamento paralelo.
+	"""
+	qid = _sanitize_id(q.get("id") or "")
+	
+	try:
+		# Enriquecer a questão com FA (modo FA) ou resposta curta (modo QA)
+		enunciado = q.get("enunciado") or q.get("text") or ""
+		contexto = q.get("contexto") or ""
+		
+		if ANSWER_MODE == "qa":
+			full_prompt = enunciado if not contexto else (contexto.strip() + "\n\nSubitem:\n" + enunciado)
+			resp = extract_with_ai(full_prompt)
+			qr = (resp.get("questoes") or [None])[0] or {}
+			if "resposta" in qr:
+				q["resposta"] = qr["resposta"]
+		else:
+			# FA: pedir ao modelo de IA um FA para este enunciado, incluindo contexto da questão-mãe quando houver
+			full_prompt = enunciado if not contexto else (contexto.strip() + "\n\nSubitem:\n" + enunciado)
+			resp = extract_with_ai(full_prompt)
+			qr = (resp.get("questoes") or [None])[0] or {}
+			# Incorporar possíveis campos retornados (fa, pda, alternativas, correta, explicacao, cyk_result)
+			for k in ["fa", "pda", "alternativas", "correta", "explicacao", "cyk_result"]:
+				if k in qr:
+					q[k] = qr[k]
+		
+		# Saídas por questão
+		_write_per_question_outputs(stem, out_dir, q, jff_type, solved_subdir)
+		
+		# Copiar imediatamente para área de trabalho (se habilitado)
+		if ENABLE_DESKTOP_COPY:
+			_copy_to_desktop_immediately(stem, out_dir, q, solved_subdir)
+		
+		# Informar se a questão precisa ou não de JFF
+		if ANSWER_MODE != "qa":
+			needs_jff = _question_needs_jff(q)
+			if needs_jff:
+				print(f"✅ {qid}: Gerando arquivo JFF (questão de autômato/PDA)")
+			else:
+				print(f"ℹ️  {qid}: Pulando JFF (questão de gramática/teoria)")
+		
+		return q
+		
+	except Exception as e:
+		print(f"❌ Erro ao processar {qid}: {e}")
+		return q
+
+
 def _write_grammar_corrections(stem: str, out_dir: Path, corrections: List[Dict[str, Any]], solved_subdir: str) -> None:
 	"""Escreve arquivo com correções das gramáticas"""
 	lines: List[str] = []
@@ -237,49 +328,61 @@ def process_file(file_path: Path, out_dir: Path, jff_type: str = "fa", refresh: 
 			if ctx:
 				q["contexto"] = ctx
 
-	# 3) Fase 2: processar cada questão
+	# 3) Fase 2: processar cada questão (com processamento paralelo)
 	done_ids = set(entry.get("questions_done", []))
 	processed_questions: List[Dict[str, Any]] = []
+	
+	# Separar questões já processadas das que precisam ser processadas
+	questions_to_process = []
 	for q in questions:
 		qid = _sanitize_id(q.get("id") or "")
 		if qid in done_ids:
 			processed_questions.append(q)
-			continue
-		# Enriquecer a questão com FA (modo FA) ou resposta curta (modo QA)
-		enunciado = q.get("enunciado") or q.get("text") or ""
-		contexto = q.get("contexto") or ""
-		if ANSWER_MODE == "qa":
-			full_prompt = enunciado if not contexto else (contexto.strip() + "\n\nSubitem:\n" + enunciado)
-			resp = extract_with_ai(full_prompt)
-			qr = (resp.get("questoes") or [None])[0] or {}
-			if "resposta" in qr:
-				q["resposta"] = qr["resposta"]
 		else:
-			# FA: pedir ao modelo de IA um FA para este enunciado, incluindo contexto da questão-mãe quando houver
-			full_prompt = enunciado if not contexto else (contexto.strip() + "\n\nSubitem:\n" + enunciado)
-			resp = extract_with_ai(full_prompt)
-			qr = (resp.get("questoes") or [None])[0] or {}
-			# Incorporar possíveis campos retornados (fa, pda, alternativas, correta, explicacao, cyk_result)
-			for k in ["fa", "pda", "alternativas", "correta", "explicacao", "cyk_result"]:
-				if k in qr:
-					q[k] = qr[k]
-		# Saídas por questão
-		_write_per_question_outputs(file_path.stem, out_dir, q, jff_type, solved_subdir)
+			questions_to_process.append(q)
+	
+	if questions_to_process:
+		# Configurar número de threads baseado no número de questões
+		max_workers = min(len(questions_to_process), MAX_PARALLEL_WORKERS)
 		
-		# Informar se a questão precisa ou não de JFF
-		if ANSWER_MODE != "qa":
-			needs_jff = _question_needs_jff(q)
-			if needs_jff:
-				print(f"✅ {qid}: Gerando arquivo JFF (questão de autômato/PDA)")
-			else:
-				print(f"ℹ️  {qid}: Pulando JFF (questão de gramática/teoria)")
+		print(f"🚀 Processando {len(questions_to_process)} questões em paralelo ({max_workers} threads)...")
+		if ENABLE_DESKTOP_COPY:
+			print("📋 Cada questão será copiada para a área de trabalho assim que resolvida")
+		print("⏱️  Você pode trabalhar enquanto o sistema processa as questões!")
+		print()
 		
-		processed_questions.append(q)
-		# atualizar status
-		done_ids.add(qid)
-		entry["questions_done"] = list(done_ids)
-		status[fname] = entry
-		save_status(out_dir, status)
+		# Processar questões em paralelo
+		with ThreadPoolExecutor(max_workers=max_workers) as executor:
+			# Submeter todas as questões para processamento paralelo
+			future_to_question = {
+				executor.submit(_process_single_question, q, file_path.stem, out_dir, jff_type, solved_subdir, status, fname): q
+				for q in questions_to_process
+			}
+			
+			# Coletar resultados conforme ficam prontos
+			for future in as_completed(future_to_question):
+				q = future_to_question[future]
+				qid = _sanitize_id(q.get("id") or "")
+				
+				try:
+					result = future.result()
+					processed_questions.append(result)
+					
+					# Atualizar status imediatamente
+					done_ids.add(qid)
+					entry["questions_done"] = list(done_ids)
+					status[fname] = entry
+					save_status(out_dir, status)
+					
+					print(f"✅ {qid} processada com sucesso!")
+					
+				except Exception as e:
+					print(f"❌ Erro ao processar {qid}: {e}")
+					processed_questions.append(q)  # Adicionar mesmo com erro
+		
+		print(f"🎉 Todas as {len(questions_to_process)} questões foram processadas!")
+	else:
+		print("ℹ️  Todas as questões já foram processadas anteriormente.")
 
 	# 4) Consolidados
 	if ANSWER_MODE == "qa":

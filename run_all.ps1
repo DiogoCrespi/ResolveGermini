@@ -56,14 +56,22 @@ if (-not (Test-Path ".venv/Scripts/python.exe")) {
 # Carregar .env se houver
 $envPath = Join-Path $root ".env"
 if (Test-Path $envPath) {
-	$lines = Get-Content $envPath -Raw -ErrorAction SilentlyContinue
-	$lines -split "`r?`n" | ForEach-Object {
-		if ($_ -match "^([^#=]+)=(.*)$") {
-			$name = $matches[1].Trim()
-			$value = $matches[2].Trim()
-			[System.Environment]::SetEnvironmentVariable($name, $value, "Process")
-		}
-	}
+    $lines = Get-Content $envPath -Raw -ErrorAction SilentlyContinue
+    $lines -split "`r?`n" | ForEach-Object {
+        if ($_ -match "^([^#=]+)=(.*)$") {
+            $name = $matches[1].Trim()
+            $value = $matches[2].Trim()
+            [System.Environment]::SetEnvironmentVariable($name, $value, "Process")
+        }
+    }
+}
+
+# Configurações de otimização (podem ser sobrescritas pelo .env)
+if (-not $env:MAX_PARALLEL_WORKERS) {
+    [System.Environment]::SetEnvironmentVariable("MAX_PARALLEL_WORKERS", "4", "Process")
+}
+if (-not $env:ENABLE_DESKTOP_COPY) {
+    [System.Environment]::SetEnvironmentVariable("ENABLE_DESKTOP_COPY", "true", "Process")
 }
 
 # Verificar se pelo menos uma chave de API está definida
@@ -86,11 +94,17 @@ if ($aiModel -eq "gpt") {
 		Write-Host "AI_MODEL=gemini mas GEMINI_API_KEY nao definida. Defina no .env ou no ambiente." -ForegroundColor Red
 		exit 1
 	}
-	Write-Host "Usando Gemini (modelo: $($env:GEMINI_MODEL))" -ForegroundColor Green
-} else {
-	Write-Host "AI_MODEL deve ser 'gemini', 'gpt' ou 'deepseek'. Valor atual: $aiModel" -ForegroundColor Red
-	exit 1
-}
+        Write-Host "Usando Gemini (modelo: $($env:GEMINI_MODEL))" -ForegroundColor Green
+    } else {
+        Write-Host "AI_MODEL deve ser 'gemini', 'gpt' ou 'deepseek'. Valor atual: $aiModel" -ForegroundColor Red
+        exit 1
+    }
+
+# Mostrar configurações de otimização
+Write-Host "`n🚀 Configurações de Otimização:" -ForegroundColor Cyan
+Write-Host "   Threads paralelas: $($env:MAX_PARALLEL_WORKERS)" -ForegroundColor White
+Write-Host "   Cópia para área de trabalho: $($env:ENABLE_DESKTOP_COPY)" -ForegroundColor White
+Write-Host "   Rate limit: $($env:RATE_LIMIT_PER_MINUTE) req/min" -ForegroundColor White
 
 # Limpar pasta out e recriar out\resolvidas para reprocessamento completo
 try {
