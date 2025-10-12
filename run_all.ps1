@@ -161,22 +161,20 @@ Get-ChildItem -Force out | Select-Object Name, Length | Format-Table -AutoSize
 Write-Host "Arquivos resolvidos (JFF por questão) em out\resolvidas/:" -ForegroundColor Cyan
 Get-ChildItem -Force (Join-Path out resolvidas) -ErrorAction SilentlyContinue | Select-Object Name, Length | Format-Table -AutoSize
 
-# Copiar para a Área de Trabalho do usuário
+# Copiar para a Área de Trabalho do usuário (sem limpar arquivos já copiados)
 try {
 	$desktop = [Environment]::GetFolderPath('Desktop')
 	$src = Join-Path $root 'out\resolvidas'
 	$dst = Join-Path $desktop 'resolvidas'
 	if (Test-Path $src) {
-		# Limpar pasta de destino de forma agressiva antes de copiar
-		if (Test-Path $dst) { 
-			Write-Host "Limpando pasta de destino antes da cópia..." -ForegroundColor Yellow
-			Remove-Item -Recurse -Force -ErrorAction SilentlyContinue $dst
-			Start-Sleep -Milliseconds 500
-			if (Test-Path $dst) {
-				Remove-Item -Recurse -Force -ErrorAction SilentlyContinue $dst
-			}
+		# Criar pasta de destino se não existir (sem limpar arquivos existentes)
+		if (-not (Test-Path $dst)) { 
+			New-Item -ItemType Directory -Path $dst -Force | Out-Null
 		}
+		
+		# Copiar apenas arquivos que não existem ou são mais novos
 		Copy-Item -Recurse -Force $src $dst
+		
 		# Copiar também utilitários para a pasta de destino
 		try {
 			$jflap = Join-Path $root 'JFLAP7.1.jar'
