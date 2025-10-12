@@ -142,7 +142,7 @@ set RATE_LIMIT_PER_MINUTE=20
 3. **Qualidade**: Diferentes modelos podem produzir resultados com qualidades diferentes
 4. **Disponibilidade**: Verifique se sua chave de API tem acesso ao modelo escolhido
 5. **Processamento Paralelo**: Acelera significativamente o Gemini 2.5, permitindo trabalho simultâneo
-6. **Cópia Imediata**: Questões são copiadas para `Desktop/resolvidas_automato` assim que resolvidas
+6. **Cópia Imediata**: Questões são copiadas para `Desktop/resolvidas_automato` (apenas TXT e JFF)
 
 ## Troubleshooting
 

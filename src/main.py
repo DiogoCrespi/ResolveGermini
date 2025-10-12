@@ -54,20 +54,14 @@ def _copy_to_desktop_immediately(stem: str, out_dir: Path, q: Dict[str, Any], so
 			txt_dst = desktop / f"{base}.txt"
 			shutil.copy2(txt_src, txt_dst)
 		
-		# Copiar arquivo JSON (sempre existe)
-		json_src = out_dir / f"{base}.json"
-		if json_src.exists():
-			json_dst = desktop / f"{base}.json"
-			shutil.copy2(json_src, json_dst)
-		
-		# Copiar arquivo JFF (se existir)
+		# Copiar arquivo JFF (se existir e não estiver em modo QA)
 		if ANSWER_MODE != "qa":
 			jff_src = out_dir / solved_subdir / f"{base}.jff"
 			if jff_src.exists():
 				jff_dst = desktop / f"{base}.jff"
 				shutil.copy2(jff_src, jff_dst)
 		
-		print(f"📋 {qid} copiado para área de trabalho: {desktop}")
+		print(f"📋 {qid} (TXT + JFF) copiado para área de trabalho: {desktop}")
 		
 	except Exception as e:
 		print(f"⚠️  Erro ao copiar {qid} para área de trabalho: {e}")

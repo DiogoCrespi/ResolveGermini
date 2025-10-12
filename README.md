@@ -95,7 +95,7 @@ O executável ficará em `dist\automato_app.exe`.
 
 ### Otimizações Implementadas
 - **Processamento Paralelo**: Acelera significativamente o Gemini 2.5 usando múltiplas threads
-- **Cópia Imediata**: Questões são copiadas para `Desktop/resolvidas_automato` assim que resolvidas
+- **Cópia Imediata**: Questões são copiadas para `Desktop/resolvidas_automato` (apenas TXT e JFF)
 - **Geração Inteligente de JFF**: Gera arquivos JFF apenas para questões que realmente precisam
 - **Feedback em Tempo Real**: Mostra progresso e permite trabalho simultâneo
 
@@ -115,7 +115,7 @@ set RATE_LIMIT_PER_MINUTE=30
 - O parser de questões é heurístico; ajuste `splitter` conforme seu padrão de prova.
 - Valide os `.jff` no JFLAP (incluímos verificação básica na geração).
 - Para mais detalhes sobre configuração de modelos de IA, consulte `CONFIGURACAO_IA.md`.
-- **Trabalhe enquanto processa**: Questões são copiadas imediatamente para a área de trabalho.
+- **Trabalhe enquanto processa**: Questões são copiadas imediatamente para a área de trabalho (TXT + JFF).
 
 ### Troubleshooting
 - **Erro de cota**: Sua conta atingiu o limite. Tente outro modelo de IA.
