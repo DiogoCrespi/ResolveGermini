@@ -324,7 +324,21 @@ def process_file(file_path: Path, out_dir: Path, jff_type: str = "fa", refresh: 
 			if ctx:
 				q["contexto"] = ctx
 
-	# 3) Fase 2: processar cada questão (com processamento paralelo)
+	# Propagar resultados de questões anteriores para questões subsequentes
+	# Isso permite que Q2 acesse o resultado da Q1, Q3 acesse Q2, etc.
+	previous_results: Dict[str, str] = {}
+	for i, q in enumerate(questions):
+		qid = (q.get("id") or "").strip()
+		if qid and qid[-1].isdigit():  # Questão principal (Q1, Q2, Q3...)
+			# Adicionar contexto de questões anteriores
+			if previous_results:
+				contexto_anterior = "\\n\\n---\\n\\n".join([f"Resultado da {qid_ant}:\\n{resultado}" for qid_ant, resultado in previous_results.items()])
+				if "contexto" in q:
+					q["contexto"] = q["contexto"] + "\\n\\n" + contexto_anterior
+				else:
+					q["contexto"] = contexto_anterior
+
+	# 3) Fase 2: processar cada questão
 	done_ids = set(entry.get("questions_done", []))
 	processed_questions: List[Dict[str, Any]] = []
 	
@@ -334,49 +348,105 @@ def process_file(file_path: Path, out_dir: Path, jff_type: str = "fa", refresh: 
 		qid = _sanitize_id(q.get("id") or "")
 		if qid in done_ids:
 			processed_questions.append(q)
+			# Armazenar resultado para questões subsequentes
+			if qid[-1].isdigit():  # Questão principal
+				explicacao = q.get("explicacao", "")
+				if explicacao:
+					previous_results[qid] = explicacao
 		else:
 			questions_to_process.append(q)
 	
 	if questions_to_process:
-		# Configurar número de threads baseado no número de questões
-		max_workers = min(len(questions_to_process), MAX_PARALLEL_WORKERS)
-		
-		print(f"🚀 Processando {len(questions_to_process)} questões em paralelo ({max_workers} threads)...")
-		if ENABLE_DESKTOP_COPY:
-			print("📋 Cada questão será copiada para a área de trabalho assim que resolvida")
-		print("⏱️  Você pode trabalhar enquanto o sistema processa as questões!")
-		print()
-		
-		# Processar questões em paralelo
-		with ThreadPoolExecutor(max_workers=max_workers) as executor:
-			# Submeter todas as questões para processamento paralelo
-			future_to_question = {
-				executor.submit(_process_single_question, q, file_path.stem, out_dir, jff_type, solved_subdir, status, fname): q
-				for q in questions_to_process
-			}
-			
-			# Coletar resultados conforme ficam prontos
-			for future in as_completed(future_to_question):
-				q = future_to_question[future]
+		# Verificar se há dependências entre questões (questões que referenciam "exercício anterior")
+		has_dependencies = any(
+			"exercício anterior" in (q.get("enunciado") or "").lower() or 
+			"resultante do" in (q.get("enunciado") or "").lower() or
+			"anterior" in (q.get("enunciado") or "").lower()
+			for q in questions_to_process
+		)
+
+		if has_dependencies:
+			# Processamento sequencial para questões com dependências
+			print(f"🔄 Processando {len(questions_to_process)} questões sequencialmente (há dependências entre questões)...")
+			if ENABLE_DESKTOP_COPY:
+				print("📋 Cada questão será copiada para a área de trabalho (TXT + JFF) assim que resolvida")
+			print()
+
+			# Processar questões sequencialmente
+			for q in questions_to_process:
 				qid = _sanitize_id(q.get("id") or "")
 				
+				# Adicionar contexto de questões anteriores já processadas
+				if previous_results:
+					contexto_anterior = "\\n\\n---\\n\\n".join([f"Resultado da {qid_ant}:\\n{resultado}" for qid_ant, resultado in previous_results.items()])
+					if "contexto" in q:
+						q["contexto"] = q["contexto"] + "\\n\\n" + contexto_anterior
+					else:
+						q["contexto"] = contexto_anterior
+
 				try:
-					result = future.result()
+					result = _process_single_question(q, file_path.stem, out_dir, jff_type, solved_subdir, status, fname)
 					processed_questions.append(result)
-					
+
+					# Armazenar resultado para questões subsequentes
+					if qid[-1].isdigit():  # Questão principal
+						explicacao = result.get("explicacao", "")
+						if explicacao:
+							previous_results[qid] = explicacao
+
 					# Atualizar status imediatamente
 					done_ids.add(qid)
 					entry["questions_done"] = list(done_ids)
 					status[fname] = entry
 					save_status(out_dir, status)
-					
+
 					print(f"✅ {qid} processada com sucesso!")
-					
+
 				except Exception as e:
 					print(f"❌ Erro ao processar {qid}: {e}")
 					processed_questions.append(q)  # Adicionar mesmo com erro
-		
-		print(f"🎉 Todas as {len(questions_to_process)} questões foram processadas!")
+
+			print(f"🎉 Todas as {len(questions_to_process)} questões foram processadas!")
+		else:
+			# Processamento paralelo para questões independentes
+			max_workers = min(len(questions_to_process), MAX_PARALLEL_WORKERS)
+			
+			print(f"🚀 Processando {len(questions_to_process)} questões em paralelo ({max_workers} threads)...")
+			if ENABLE_DESKTOP_COPY:
+				print("📋 Cada questão será copiada para a área de trabalho assim que resolvida")
+			print("⏱️  Você pode trabalhar enquanto o sistema processa as questões!")
+			print()
+			
+			# Processar questões em paralelo
+			with ThreadPoolExecutor(max_workers=max_workers) as executor:
+				# Submeter todas as questões para processamento paralelo
+				future_to_question = {
+					executor.submit(_process_single_question, q, file_path.stem, out_dir, jff_type, solved_subdir, status, fname): q
+					for q in questions_to_process
+				}
+				
+				# Coletar resultados conforme ficam prontos
+				for future in as_completed(future_to_question):
+					q = future_to_question[future]
+					qid = _sanitize_id(q.get("id") or "")
+					
+					try:
+						result = future.result()
+						processed_questions.append(result)
+						
+						# Atualizar status imediatamente
+						done_ids.add(qid)
+						entry["questions_done"] = list(done_ids)
+						status[fname] = entry
+						save_status(out_dir, status)
+						
+						print(f"✅ {qid} processada com sucesso!")
+						
+					except Exception as e:
+						print(f"❌ Erro ao processar {qid}: {e}")
+						processed_questions.append(q)  # Adicionar mesmo com erro
+			
+			print(f"🎉 Todas as {len(questions_to_process)} questões foram processadas!")
 	else:
 		print("ℹ️  Todas as questões já foram processadas anteriormente.")
 
