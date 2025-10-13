@@ -115,6 +115,7 @@ SYSTEM_PROMPT_BASE_FA = (
     "- Use títulos claros (ex: '1. Eliminar ε-produções:')\n"
     "- Use listas com marcadores (-) para itens\n"
     "- Separe claramente cada etapa do processo\n"
+    "- Use '---' para separar questões diferentes\n"
     "- Exemplo de formatação para conversões:\n"
     "  '1. Eliminar ε-produções:\\nVariáveis anuláveis: {B, A, S}\\nGramática resultante: S → AB | A | B\\n\\n2. Eliminar produções unitárias:\\nFechos: U(S)={S,A,B}\\nGramática resultante: S → AB | aBa | aa | a'\n"
     "- Exemplo de formatação para bombeamento:\n"
@@ -122,7 +123,9 @@ SYSTEM_PROMPT_BASE_FA = (
     "- Exemplo de formatação para CYK:\n"
     "  'Tabela CYK para w=aab:\\nV[1,1]={A}, V[2,2]={A}, V[3,3]={B}\\nV[1,2]={S}, V[2,3]={}\\nV[1,3]={}\\nResultado: w ∉ L(G)'\n"
     "- Exemplo de formatação para derivações:\n"
-    "  'Derivação leftmost para aabbbaa:\\nS ⇒ aSa ⇒ aaSaa ⇒ aaMaa ⇒ aabMbaa ⇒ aabbbaa'"
+    "  'Derivação leftmost para aabbbaa:\\nS ⇒ aSa ⇒ aaSaa ⇒ aaMaa ⇒ aabMbaa ⇒ aabbbaa'\n"
+    "- Exemplo de separação entre questões:\n"
+    "  'Questão 1: Forma Normal de Chomsky\\n1. Eliminar ε-produções:\\n...\\n\\n---\\n\\nQuestão 2: Lema do Bombeamento\\n1. Assuma L livre de contexto...'"
 )
 
 SYSTEM_PROMPT_QA = (
