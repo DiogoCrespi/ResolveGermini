@@ -289,64 +289,47 @@ def _write_grammar_corrections(stem: str, out_dir: Path, corrections: List[Dict[
 	txt_path.write_text("\n".join(lines), encoding="utf-8")
 
 
-def _process_json_file(file_path: Path, out_dir: Path, jff_type: str, solved_subdir: str) -> None:
-    """Processa um arquivo JSON externo contendo uma questão única ou {"questoes": [...]}.
-    Gera TXT/JSON por questão e JFF quando aplicável."""
-    data = json.loads(file_path.read_text(encoding="utf-8"))
-    if isinstance(data, dict) and "questoes" in data and isinstance(data["questoes"], list):
-        questions = data["questoes"]
-    else:
-        # Trata como questão única
-        questions = [data] if isinstance(data, dict) else []
-
-    if not questions:
-        print(f"ℹ️  JSON vazio ou sem formato esperado: {file_path.name}")
-        return
-
-    stem = file_path.stem
-    processed: List[Dict[str, Any]] = []
-    for q in questions:
-        # Garantir que há um id
-        if not q.get("id"):
-            q["id"] = "Q"
-        _write_per_question_outputs(stem, out_dir, q, jff_type, solved_subdir)
-        if ENABLE_DESKTOP_COPY:
-            _copy_to_desktop_immediately(stem, out_dir, q, solved_subdir)
-        processed.append(q)
-
-    # Consolidados (somente FA)
-    jff_questions = [q for q in processed if _question_needs_jff(q)]
-    if jff_questions and ANSWER_MODE != "qa":
-        consolidated = {"questoes": jff_questions}
-        jff_out = out_dir / f"{stem}.jff"
-        write_fa_jff_file(consolidated, str(jff_out))
-        print(f"📁 Arquivo JFF consolidado criado (JSON externo): {jff_out}")
-
-
-def _process_jff_file(file_path: Path, out_dir: Path, solved_subdir: str) -> None:
-    """Copia um .jff externo para a pasta de resolvidas e Desktop."""
-    stem = file_path.stem
-    dst_dir = out_dir / solved_subdir
-    dst_dir.mkdir(parents=True, exist_ok=True)
-    dst = dst_dir / f"{stem}.jff"
-    shutil.copy2(file_path, dst)
-    # Copiar também para Desktop
-    desktop = Path.home() / "Desktop" / "resolvidas"
-    desktop.mkdir(parents=True, exist_ok=True)
-    shutil.copy2(dst, desktop / f"{stem}.jff")
-    print(f"📋 {file_path.name} copiado para {dst} e Desktop")
-
-
-def _process_correcoes_txt(file_path: Path, out_dir: Path, solved_subdir: str) -> None:
-    """Copia arquivo *_correcoes_gramaticas.txt para out/solved e Desktop."""
-    dst_dir = out_dir / solved_subdir
-    dst_dir.mkdir(parents=True, exist_ok=True)
-    dst = dst_dir / file_path.name
-    shutil.copy2(file_path, dst)
-    desktop = Path.home() / "Desktop" / "resolvidas"
-    desktop.mkdir(parents=True, exist_ok=True)
-    shutil.copy2(dst, desktop / file_path.name)
-    print(f"📋 Correções copiadas para {dst} e Desktop")
+def _process_external_files_for_validation(inp: Path, out_dir: Path, solved_subdir: str) -> None:
+	"""Processa arquivos externos (.jff, *_correcoes_gramaticas.txt) para validação/correção"""
+	
+	# Buscar arquivos .jff
+	jff_files = list(inp.glob("*.jff"))
+	for jff_file in jff_files:
+		try:
+			# Copiar .jff para pasta resolvidas
+			dst_dir = out_dir / solved_subdir
+			dst_dir.mkdir(parents=True, exist_ok=True)
+			dst = dst_dir / jff_file.name
+			shutil.copy2(jff_file, dst)
+			print(f"📋 {jff_file.name} copiado para {dst}")
+		except Exception as e:
+			print(f"Erro ao processar {jff_file.name}: {e}")
+	
+	# Buscar arquivos de correções
+	corrections_files = list(inp.glob("*_correcoes_gramaticas.txt"))
+	for corr_file in corrections_files:
+		try:
+			# Copiar correções para pasta resolvidas
+			dst_dir = out_dir / solved_subdir
+			dst_dir.mkdir(parents=True, exist_ok=True)
+			dst = dst_dir / corr_file.name
+			shutil.copy2(corr_file, dst)
+			print(f"📋 {corr_file.name} copiado para {dst}")
+		except Exception as e:
+			print(f"Erro ao processar {corr_file.name}: {e}")
+	
+	# Copiar para Desktop se habilitado
+	if ENABLE_DESKTOP_COPY:
+		desktop = Path.home() / "Desktop" / "resolvidas"
+		desktop.mkdir(parents=True, exist_ok=True)
+		
+		for file_list, file_type in [(jff_files, "JFF"), (corrections_files, "Correções")]:
+			for file_path in file_list:
+				try:
+					shutil.copy2(file_path, desktop / file_path.name)
+					print(f"📋 {file_path.name} ({file_type}) copiado para Desktop")
+				except Exception as e:
+					print(f"Erro ao copiar {file_path.name} para Desktop: {e}")
 
 
 def process_file(file_path: Path, out_dir: Path, jff_type: str = "fa", refresh: bool = False, solved_subdir: str = "resolvidas") -> None:
@@ -560,26 +543,17 @@ def main() -> None:
 	out = Path(args.out)
 	out.mkdir(parents=True, exist_ok=True)
 
-    files = (
-        list(inp.glob("*.pdf"))
-        + list(inp.glob("*.docx"))
-        + list(inp.glob("*.json"))
-        + list(inp.glob("*.jff"))
-        + list(inp.glob("*_correcoes_gramaticas.txt"))
-    )
+	# Processar arquivos PDF/DOCX (processamento completo)
+	files = list(inp.glob("*.pdf")) + list(inp.glob("*.docx"))
 	for f in files:
 		try:
-            # Ramificar por extensão para suportar entradas externas
-            if f.suffix.lower() == ".json":
-                _process_json_file(f, out, jff_type=args.jff_type, solved_subdir=args.solved_dir)
-            elif f.suffix.lower() == ".jff":
-                _process_jff_file(f, out, solved_subdir=args.solved_dir)
-            elif f.name.endswith("_correcoes_gramaticas.txt"):
-                _process_correcoes_txt(f, out, solved_subdir=args.solved_dir)
-            else:
-                process_file(f, out, jff_type=args.jff_type, refresh=args.refresh, solved_subdir=args.solved_dir)
+			process_file(f, out, jff_type=args.jff_type, refresh=args.refresh, solved_subdir=args.solved_dir)
 		except Exception as e:
 			print(f"Erro ao processar {f.name}: {e}")
+	
+	# Processar arquivos externos (.jff, *_correcoes_gramaticas.txt) para validação/correção
+	print("\n🔍 Processando arquivos externos para validação/correção...")
+	_process_external_files_for_validation(inp, out, args.solved_dir)
 
 
 if __name__ == "__main__":
