@@ -322,11 +322,15 @@ SYSTEM_PROMPT_GRAMMAR_VALIDATION = (
 def validate_grammars_deepseek(questions: List[Dict[str, Any]]) -> Dict[str, Any]:
     """Valida e corrige gramáticas de questões de linguagens livres de contexto"""
     
-    # Filtrar apenas questões que têm gramáticas (explicacao)
-    grammar_questions = []
-    for q in questions:
-        if q.get("explicacao") and q.get("explicacao").strip():
-            grammar_questions.append(q)
+	# Filtrar apenas questões que têm gramáticas (explicacao) e NÃO são de Turing
+	grammar_questions = []
+	for q in questions:
+		# Pular questões de Máquina de Turing
+		if q.get("turing") and q.get("turing").get("type") == "turing":
+			continue
+		# Incluir apenas questões com explicação (gramáticas)
+		if q.get("explicacao") and q.get("explicacao").strip():
+			grammar_questions.append(q)
     
     if not grammar_questions:
         return {"questoes": []}

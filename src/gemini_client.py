@@ -94,6 +94,8 @@ SYSTEM_PROMPT_BASE_FA = (
 	"2) Para questões de GRAMÁTICA LIVRE DE CONTEXTO: no campo 'explicacao', RETORNE APENAS as regras de produção da GLC. FORMATO: 'S -> r1 | r2, A -> ra1 | ...'. Use 'e' para epsilon. EXEMPLO: Para L2 = {a^n b^m b^m a^n | n > 0 e m > 0}, use S -> aSa | aMa, M -> bMb | bb\n"
 	"3) Para questões de AUTÔMATO DE PILHA (PDA): NÃO use o campo 'fa', use APENAS o campo 'pda' com type='pda'. Estados devem ter 'label' descritivo. Transições devem incluir 'read', 'pop' e 'push'. Use 'Z' como símbolo inicial da pilha\n"
 	"4) Para questões de MÁQUINA DE TURING: use APENAS o campo 'turing' com type='turing'. Estados devem ter 'label' descritivo. Transições devem incluir 'read', 'write' e 'move' (R/L). Use símbolos auxiliares (X, Y, Z) para marcar posições\n"
+	"   - EXIGÊNCIA: Retorne 'states' e 'transitions' completos que reconheçam exatamente a linguagem pedida.\n"
+	"   - GARANTA: Há pelo menos um estado inicial e um de aceitação, e as transições cobrem o fluxo principal da leitura.\n"
 	"5) Para questões de ALGORITMO CYK: no campo 'cyk_result', retorne 'true' se a cadeia pertence à linguagem, 'false' caso contrário, seguido da tabela CYK detalhada. Se a cadeia não for especificada no enunciado, explique que a gramática está pronta para CYK mas a cadeia específica será testada nos subitens\n"
 	"6) Para questões de FORMA NORMAL DE CHOMSKY/GREIBACH: no campo 'explicacao', mostre a conversão passo a passo detalhada. Para FNG: 1) Mostre o ponto de partida (gramática pós-simplificação), 2) Identifique produções que não começam com terminal, 3) Substitua variáveis por suas produções, 4) Substitua terminais não-iniciais por novas variáveis (Tₐ→a, Tᵦ→b), 5) Apresente a gramática final. Use numeração clara e mostre cada substituição\n"
 	"7) Para LEMA DO BOMBEAMENTO (provar que NÃO é livre de contexto): seja sucinto e siga os 5 passos: 1) Assuma L livre de contexto e escolha p>0; 2) Escolha w ∈ L com |w| > p; 3) Escreva w = uvxyz com |vxy| ≤ p e |vy| ≥ 1; 4) Mostre um i (tipicamente 0 ou 2) tal que uv^ixy^iz ∉ L; 5) REFORCE explicitamente a conclusão: 'Logo, L não é livre de contexto'. Diretriz geral: considere os casos-limite pertinentes ao enunciado; sempre que a escolha de v, x, y levar a violar |vy| ≥ 1 ou a não preservar as contagens/estruturas exigidas pela linguagem, explicite a contradição de forma direta e objetiva\n"
@@ -111,7 +113,7 @@ SYSTEM_PROMPT_BASE_FA = (
 	"- Para derivações: mostre apenas a sequência de passos\n"
 	"- NÃO repita informações já dadas no enunciado\n"
 	"- Simplificar = tornar mais claro SEM REMOVER ETAPAS. Mantenha TODOS os passos numerados e visíveis\n"
-	"- Reforce a CONCLUSÃO explicitamente quando houver prova por contradição (ex.: 'Logo, L não é livre de contexto')\n\n"
+	"- Reforce a CONCLUSÃO explicitamente quando houver prova por contradição (ex.: 'Logo, L não é livre de contexto pois ...')\n\n"
 	"TRATAMENTO DE QUESTÕES INCOMPLETAS:\n"
 	"- Se uma questão não tem todos os dados necessários (ex: CYK sem cadeia, bombeamento sem linguagem), explique que os dados específicos serão fornecidos nos subitens\n"
 	"- Para CYK: se não há cadeia, explique que a gramática está pronta e a cadeia será testada nos subitens\n"
@@ -350,9 +352,13 @@ SYSTEM_PROMPT_GRAMMAR_VALIDATION = (
 def validate_grammars(questions: List[Dict[str, Any]]) -> Dict[str, Any]:
 	"""Valida e corrige gramáticas de questões de linguagens livres de contexto"""
 	
-	# Filtrar apenas questões que têm gramáticas (explicacao)
+	# Filtrar apenas questões que têm gramáticas (explicacao) e NÃO são de Turing
 	grammar_questions = []
 	for q in questions:
+		# Pular questões de Máquina de Turing
+		if q.get("turing") and q.get("turing").get("type") == "turing":
+			continue
+		# Incluir apenas questões com explicação (gramáticas)
 		if q.get("explicacao") and q.get("explicacao").strip():
 			grammar_questions.append(q)
 	
