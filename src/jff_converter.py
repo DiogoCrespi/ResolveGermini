@@ -129,6 +129,86 @@ class JFFFABuilder:
 		return _serialize_jflap_xml(self.doc)
 
 
+class JFFTuringBuilder:
+	def __init__(self) -> None:
+		self.doc = ET.Element("structure")
+		type_el = ET.SubElement(self.doc, "type")
+		type_el.text = "turing"
+		self.automaton = ET.SubElement(self.doc, "automaton")
+		self._has_state = False
+
+	def add_state(self, state_id: int, name: str, x: float, y: float, initial: bool = False, final: bool = False, label: str = "") -> None:
+		st = ET.SubElement(self.automaton, "state", {"id": str(state_id), "name": name})
+		ET.SubElement(st, "x").text = str(x)
+		ET.SubElement(st, "y").text = str(y)
+		if initial:
+			ET.SubElement(st, "initial")
+		if final:
+			ET.SubElement(st, "final")
+		if label:
+			ET.SubElement(st, "label").text = label
+		self._has_state = True
+
+	def add_transition(self, from_id: int, to_id: int, read: str = "", write: str = "", move: str = "") -> None:
+		tr = ET.SubElement(self.automaton, "transition")
+		ET.SubElement(tr, "from").text = str(from_id)
+		ET.SubElement(tr, "to").text = str(to_id)
+		ET.SubElement(tr, "read").text = read or ""
+		ET.SubElement(tr, "write").text = write or ""
+		ET.SubElement(tr, "move").text = move or ""
+
+	def to_string(self) -> str:
+		# Evita automaton vazio
+		if not self._has_state:
+			self.add_state(0, "q0", 100.0, 100.0, initial=True, label="Inicial")
+			self.add_state(1, "qAccept", 220.0, 100.0, final=True, label="Aceitacao")
+			self.add_transition(0, 1, read="_", write="_", move="R")
+		return _serialize_jflap_xml(self.doc)
+
+
+def json_to_turing_jff(data: Dict[str, Any]) -> str:
+	# Extrai campo 'turing' de nível de questão ou do primeiro item
+	tm = data.get("turing")
+	if not tm:
+		qs = data.get("questoes", [])
+		if qs and isinstance(qs[0], dict):
+			tm = qs[0].get("turing")
+
+	# Se não houver dados, cria um MT mínimo
+	if not tm:
+		builder = JFFTuringBuilder()
+		builder.add_state(0, "q0", 100.0, 100.0, initial=True, label="Inicial")
+		builder.add_state(1, "qAccept", 220.0, 100.0, final=True, label="Aceitacao")
+		builder.add_transition(0, 1, read="_", write="_", move="R")
+		return builder.to_string()
+
+	# Construir MT a partir do JSON
+	builder = JFFTuringBuilder()
+	states: List[Dict[str, Any]] = tm.get("states", [])
+	transitions: List[Dict[str, Any]] = tm.get("transitions", [])
+
+	# Posicionamento simples em grid
+	for idx, st in enumerate(states):
+		state_id = int(st.get("id", idx))
+		name = st.get("name", f"q{state_id}")
+		initial = bool(st.get("initial", False))
+		final = bool(st.get("final", False))
+		label = st.get("label", "")
+		x = 100.0 + (idx % 6) * 120.0
+		y = 100.0 + (idx // 6) * 100.0
+		builder.add_state(state_id, name, x, y, initial=initial, final=final, label=label)
+
+	for tr in transitions:
+		from_id = int(tr.get("from"))
+		to_id = int(tr.get("to"))
+		read = tr.get("read", "")
+		write = tr.get("write", "")
+		move = tr.get("move", "")
+		builder.add_transition(from_id, to_id, read, write, move)
+
+	return builder.to_string()
+
+
 def json_to_mealy_jff(data: Dict[str, Any]) -> str:
 	builder = JFFMealyBuilder()
 	fa = data.get("fa")
@@ -271,5 +351,11 @@ def write_pda_jff_file(data: Dict[str, Any], out_path: str) -> None:
 
 def write_fa_jff_file(data: Dict[str, Any], out_path: str) -> None:
 	jff = json_to_fa_jff(data)
+	Path(out_path).parent.mkdir(parents=True, exist_ok=True)
+	Path(out_path).write_text(jff, encoding="utf-8")
+
+
+def write_turing_jff_file(data: Dict[str, Any], out_path: str) -> None:
+	jff = json_to_turing_jff(data)
 	Path(out_path).parent.mkdir(parents=True, exist_ok=True)
 	Path(out_path).write_text(jff, encoding="utf-8")

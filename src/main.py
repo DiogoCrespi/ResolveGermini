@@ -11,7 +11,7 @@ import time
 from .config import INPUT_DIR_DEFAULT, OUTPUT_DIR_DEFAULT, MAX_QUEST_PER_BLOCK, AI_MODEL, MAX_PARALLEL_WORKERS, ENABLE_DESKTOP_COPY
 from .extractor import extract_text
 from .ai_client import extract_with_ai, merge_blocks, segment_text_into_questions, validate_grammars
-from .jff_converter import write_mealy_jff_file, write_fa_jff_file, write_pda_jff_file
+from .jff_converter import write_mealy_jff_file, write_fa_jff_file, write_pda_jff_file, write_turing_jff_file
 
 
 STATUS_FILE = "status.json"
@@ -161,11 +161,17 @@ def _write_per_question_outputs(stem: str, out_dir: Path, q: Dict[str, Any], jff
 				("construa" in contexto or "construir" in contexto) and
 				(q.get("pda") and q.get("pda").get("type") == "pda")
 			)
+			is_turing_question = (
+				("máquina" in contexto or "maquina" in contexto or "turing" in contexto or "turing machine" in contexto or "mt" in contexto)
+				and (q.get("turing") and q.get("turing").get("type") == "turing")
+			)
 			
 			if jff_type == "mealy":
 				write_mealy_jff_file(per_data, str(jff_path))
 			elif is_pda_question:
 				write_pda_jff_file(per_data, str(jff_path))
+			elif is_turing_question:
+				write_turing_jff_file(per_data, str(jff_path))
 			elif jff_type == "fa":
 				write_fa_jff_file(per_data, str(jff_path))
 
