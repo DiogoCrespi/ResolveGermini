@@ -48,11 +48,14 @@ def _copy_to_desktop_immediately(stem: str, out_dir: Path, q: Dict[str, Any], so
 		qid = _sanitize_id(q.get("id") or "Q")
 		base = f"{stem}_{qid}"
 		
-		# Copiar arquivo TXT (sempre existe)
-		txt_src = out_dir / f"{base}.txt"
-		if txt_src.exists():
-			txt_dst = desktop / f"{base}.txt"
-			shutil.copy2(txt_src, txt_dst)
+		# Determinar se é questão de Turing para decidir cópia de TXT
+		is_turing = bool(q.get("turing") and q.get("turing", {}).get("type") == "turing")
+		# Copiar arquivo TXT (pular para Turing)
+		if not is_turing:
+			txt_src = out_dir / f"{base}.txt"
+			if txt_src.exists():
+				txt_dst = desktop / f"{base}.txt"
+				shutil.copy2(txt_src, txt_dst)
 		
 		# Copiar arquivo JFF (se existir e não estiver em modo QA)
 		if ANSWER_MODE != "qa":
@@ -61,7 +64,7 @@ def _copy_to_desktop_immediately(stem: str, out_dir: Path, q: Dict[str, Any], so
 				jff_dst = desktop / f"{base}.jff"
 				shutil.copy2(jff_src, jff_dst)
 		
-		print(f"📋 {qid} (TXT + JFF) copiado para área de trabalho: {desktop}")
+		print(f"📋 {qid} ({'JFF' if is_turing else 'TXT + JFF'}) copiado para área de trabalho: {desktop}")
 		
 	except Exception as e:
 		print(f"⚠️  Erro ao copiar {qid} para área de trabalho: {e}")
