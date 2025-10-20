@@ -18,7 +18,7 @@ USER_PROMPT = os.getenv("USER_PROMPT", "").strip()
 
 # Carrega exemplo de formato (se existir)
 FORMAT_EXAMPLE = None
-for candidate in ["Pilha.xml", "Turing_optimized.xml", "Automato_Finito.xml", "Automato_Finito.jff"]:
+for candidate in ["Pilha.xml", "Turing_optimized.xml"]:
 	p = Path(candidate)
 	if p.exists() and p.is_file():
 		FORMAT_EXAMPLE = p.read_text(encoding="utf-8")
@@ -96,7 +96,7 @@ SYSTEM_PROMPT_BASE_FA = (
 	"4) Para questões de MÁQUINA DE TURING: use APENAS o campo 'turing' com type='turing'. Estados devem ter 'label' descritivo. Transições devem incluir 'read', 'write' e 'move' (R/L). Use símbolos auxiliares (X, Y, Z) para marcar posições\n"
 	"5) Para questões de ALGORITMO CYK: no campo 'cyk_result', retorne 'true' se a cadeia pertence à linguagem, 'false' caso contrário, seguido da tabela CYK detalhada. Se a cadeia não for especificada no enunciado, explique que a gramática está pronta para CYK mas a cadeia específica será testada nos subitens\n"
 	"6) Para questões de FORMA NORMAL DE CHOMSKY/GREIBACH: no campo 'explicacao', mostre a conversão passo a passo detalhada. Para FNG: 1) Mostre o ponto de partida (gramática pós-simplificação), 2) Identifique produções que não começam com terminal, 3) Substitua variáveis por suas produções, 4) Substitua terminais não-iniciais por novas variáveis (Tₐ→a, Tᵦ→b), 5) Apresente a gramática final. Use numeração clara e mostre cada substituição\n"
-	"7) Para LEMA DO BOMBEAMENTO (provar que NÃO é livre de contexto): no campo 'explicacao', siga as 5 etapas: 1) Assuma L livre de contexto e escolha p>0; 2) Escolha w ∈ L com |w| > p; 3) Mostre que w = uvxyz com |vxy| ≤ p e |vy| ≥ 1; 4) Demonstre que uv^ixy^iz ∉ L para algum i ≥ 0; 5) Conclua que L não é livre de contexto\n"
+	"7) Para LEMA DO BOMBEAMENTO (provar que NÃO é livre de contexto): seja sucinto e siga os 5 passos: 1) Assuma L livre de contexto e escolha p>0; 2) Escolha w ∈ L com |w| > p; 3) Escreva w = uvxyz com |vxy| ≤ p e |vy| ≥ 1; 4) Mostre um i (tipicamente 0 ou 2) tal que uv^ixy^iz ∉ L; 5) REFORCE explicitamente a conclusão: 'Logo, L não é livre de contexto'. Observações: (a) Se surgir o caso k=m, destaque que isso viola |vy| ≥ 1 no arranjo escolhido, levando diretamente à contradição; (b) Se vxy não contém 'c', analise condições n₀>m₀ e k₀>m₀ e deixe claro que A_{vy}=B_{vy}=0 impede manter as contagens exigidas pela linguagem (ex.: L3), resultando em contradição\n"
 	"8) Para questões de SIMPLIFICAÇÃO DE GRAMÁTICAS: siga a ordem: remover ε-produções, remover produções unitárias, remover símbolos inúteis\n"
 	"9) Para questões de DERIVAÇÕES: mostre derivações leftmost detalhadas com notação ⇒. EXEMPLO: Para L2 = {a^n b^m b^m a^n}, com S -> aSa | aMa, M -> bMb | bb: S ⇒ aSa ⇒ aaSaa ⇒ aaMaa ⇒ aabMbaa ⇒ aabbbaa\n"
 	"10) Para questões de PROPRIEDADES DE FECHAMENTO: cite se GLCs são fechadas sob união, concatenação, fecho de Kleene (sim) ou interseção e complementação (não)\n"
@@ -109,7 +109,9 @@ SYSTEM_PROMPT_BASE_FA = (
 	"- Para CYK: mostre apenas a tabela final e resultado\n"
 	"- Para conversões: mostre apenas os passos principais\n"
 	"- Para derivações: mostre apenas a sequência de passos\n"
-	"- NÃO repita informações já dadas no enunciado\n\n"
+	"- NÃO repita informações já dadas no enunciado\n"
+	"- Simplificar = tornar mais claro SEM REMOVER ETAPAS. Mantenha TODOS os passos numerados e visíveis\n"
+	"- Reforce a CONCLUSÃO explicitamente quando houver prova por contradição (ex.: 'Logo, L não é livre de contexto')\n\n"
 	"TRATAMENTO DE QUESTÕES INCOMPLETAS:\n"
 	"- Se uma questão não tem todos os dados necessários (ex: CYK sem cadeia, bombeamento sem linguagem), explique que os dados específicos serão fornecidos nos subitens\n"
 	"- Para CYK: se não há cadeia, explique que a gramática está pronta e a cadeia será testada nos subitens\n"
