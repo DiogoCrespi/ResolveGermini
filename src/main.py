@@ -227,8 +227,8 @@ def _process_single_question(q: Dict[str, Any], stem: str, out_dir: Path, jff_ty
 			full_prompt = enunciado if not contexto else (contexto.strip() + "\n\nSubitem:\n" + enunciado)
 			resp = extract_with_ai(full_prompt)
 			qr = (resp.get("questoes") or [None])[0] or {}
-			# Incorporar possíveis campos retornados (fa, pda, alternativas, correta, explicacao, cyk_result)
-			for k in ["fa", "pda", "alternativas", "correta", "explicacao", "cyk_result"]:
+			# Incorporar possíveis campos retornados (fa, pda, turing, alternativas, correta, explicacao, cyk_result)
+			for k in ["fa", "pda", "turing", "alternativas", "correta", "explicacao", "cyk_result"]:
 				if k in qr:
 					q[k] = qr[k]
 		
@@ -243,7 +243,7 @@ def _process_single_question(q: Dict[str, Any], stem: str, out_dir: Path, jff_ty
 		if ANSWER_MODE != "qa":
 			needs_jff = _question_needs_jff(q)
 			if needs_jff:
-				print(f"✅ {qid}: Gerando arquivo JFF (questão de autômato/PDA)")
+				print(f"✅ {qid}: Gerando arquivo JFF (autômato/PDA/Turing)")
 			else:
 				print(f"ℹ️  {qid}: Pulando JFF (questão de gramática/teoria)")
 		
