@@ -287,3 +287,4 @@ if __name__ == "__main__":
     print(f"Gerados {len(testes['test_cases'])} casos de teste para a linguagem F")
     print(f"Casos válidos: {sum(1 for caso in testes['test_cases'] if caso['expected'])}")
     print(f"Casos inválidos: {sum(1 for caso in testes['test_cases'] if not caso['expected'])}")
+

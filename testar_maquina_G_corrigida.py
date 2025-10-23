@@ -175,3 +175,4 @@ def test_machine_with_cases():
 
 if __name__ == "__main__":
     test_machine_with_cases()
+
