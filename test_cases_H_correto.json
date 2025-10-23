@@ -1,0 +1,465 @@
+{
+  "language": "H: {w | w ∈ {a, b}* e w contenha o dobro de símbolos \"a\" do que \"b\"}",
+  "test_cases": [
+    {
+      "input": "",
+      "expected": true,
+      "description": "Caso válido: '' - String vazia - aceita (0 a's = 2 * 0 b's)"
+    },
+    {
+      "input": "aab",
+      "expected": true,
+      "description": "Caso válido: 'aab' - Válido: 2 a's = 2 * 1 b's"
+    },
+    {
+      "input": "aba",
+      "expected": true,
+      "description": "Caso válido: 'aba' - Válido: 2 a's = 2 * 1 b's"
+    },
+    {
+      "input": "baa",
+      "expected": true,
+      "description": "Caso válido: 'baa' - Válido: 2 a's = 2 * 1 b's"
+    },
+    {
+      "input": "aaaabb",
+      "expected": true,
+      "description": "Caso válido: 'aaaabb' - Válido: 4 a's = 2 * 2 b's"
+    },
+    {
+      "input": "aabaab",
+      "expected": true,
+      "description": "Caso válido: 'aabaab' - Válido: 4 a's = 2 * 2 b's"
+    },
+    {
+      "input": "abaaba",
+      "expected": true,
+      "description": "Caso válido: 'abaaba' - Válido: 4 a's = 2 * 2 b's"
+    },
+    {
+      "input": "baabaa",
+      "expected": true,
+      "description": "Caso válido: 'baabaa' - Válido: 4 a's = 2 * 2 b's"
+    },
+    {
+      "input": "aabbaa",
+      "expected": true,
+      "description": "Caso válido: 'aabbaa' - Válido: 4 a's = 2 * 2 b's"
+    },
+    {
+      "input": "bbaaaa",
+      "expected": true,
+      "description": "Caso válido: 'bbaaaa' - Válido: 4 a's = 2 * 2 b's"
+    },
+    {
+      "input": "aaaaaabbb",
+      "expected": true,
+      "description": "Caso válido: 'aaaaaabbb' - Válido: 6 a's = 2 * 3 b's"
+    },
+    {
+      "input": "aaabaaabab",
+      "expected": true,
+      "description": "Caso válido: 'aaabaaabab' - Inválido: 7 a's ≠ 2 * 3 b's"
+    },
+    {
+      "input": "abababaaa",
+      "expected": true,
+      "description": "Caso válido: 'abababaaa' - Válido: 6 a's = 2 * 3 b's"
+    },
+    {
+      "input": "bbbaaaaaa",
+      "expected": true,
+      "description": "Caso válido: 'bbbaaaaaa' - Válido: 6 a's = 2 * 3 b's"
+    },
+    {
+      "input": "aaaaaaaaaabbbb",
+      "expected": true,
+      "description": "Caso válido: 'aaaaaaaaaabbbb' - Inválido: 10 a's ≠ 2 * 4 b's"
+    },
+    {
+      "input": "aabbaabbaabbaa",
+      "expected": true,
+      "description": "Caso válido: 'aabbaabbaabbaa' - Inválido: 8 a's ≠ 2 * 6 b's"
+    },
+    {
+      "input": "bbbbaaaaaaaaaa",
+      "expected": true,
+      "description": "Caso válido: 'bbbbaaaaaaaaaa' - Inválido: 10 a's ≠ 2 * 4 b's"
+    },
+    {
+      "input": "aaaaaaaaaabbbbb",
+      "expected": true,
+      "description": "Caso válido: 'aaaaaaaaaabbbbb' - Válido: 10 a's = 2 * 5 b's"
+    },
+    {
+      "input": "abababababaaaaa",
+      "expected": true,
+      "description": "Caso válido: 'abababababaaaaa' - Válido: 10 a's = 2 * 5 b's"
+    },
+    {
+      "input": "aaaaaaaaaaaabbbbbb",
+      "expected": true,
+      "description": "Caso válido: 'aaaaaaaaaaaabbbbbb' - Válido: 12 a's = 2 * 6 b's"
+    },
+    {
+      "input": "aaaaaaaaaaaaabbbbbbb",
+      "expected": true,
+      "description": "Caso válido: 'aaaaaaaaaaaaabbbbbbb' - Inválido: 13 a's ≠ 2 * 7 b's"
+    },
+    {
+      "input": "aaaaaaaaaaaaaaaabbbbbbbb",
+      "expected": true,
+      "description": "Caso válido: 'aaaaaaaaaaaaaaaabbbbbbbb' - Válido: 16 a's = 2 * 8 b's"
+    },
+    {
+      "input": "aaaaaaaaaaaaaaaaaabbbbbbbbb",
+      "expected": true,
+      "description": "Caso válido: 'aaaaaaaaaaaaaaaaaabbbbbbbbb' - Válido: 18 a's = 2 * 9 b's"
+    },
+    {
+      "input": "aaaaaaaaaaaaaaaaaaaabbbbbbbbbb",
+      "expected": true,
+      "description": "Caso válido: 'aaaaaaaaaaaaaaaaaaaabbbbbbbbbb' - Válido: 20 a's = 2 * 10 b's"
+    },
+    {
+      "input": "a",
+      "expected": false,
+      "description": "Caso inválido: 'a' - Inválido: 1 a's ≠ 2 * 0 b's"
+    },
+    {
+      "input": "aa",
+      "expected": false,
+      "description": "Caso inválido: 'aa' - Inválido: 2 a's ≠ 2 * 0 b's"
+    },
+    {
+      "input": "aaa",
+      "expected": false,
+      "description": "Caso inválido: 'aaa' - Inválido: 3 a's ≠ 2 * 0 b's"
+    },
+    {
+      "input": "aaaa",
+      "expected": false,
+      "description": "Caso inválido: 'aaaa' - Inválido: 4 a's ≠ 2 * 0 b's"
+    },
+    {
+      "input": "aaaaa",
+      "expected": false,
+      "description": "Caso inválido: 'aaaaa' - Inválido: 5 a's ≠ 2 * 0 b's"
+    },
+    {
+      "input": "b",
+      "expected": false,
+      "description": "Caso inválido: 'b' - Inválido: 0 a's ≠ 2 * 1 b's"
+    },
+    {
+      "input": "bb",
+      "expected": false,
+      "description": "Caso inválido: 'bb' - Inválido: 0 a's ≠ 2 * 2 b's"
+    },
+    {
+      "input": "bbb",
+      "expected": false,
+      "description": "Caso inválido: 'bbb' - Inválido: 0 a's ≠ 2 * 3 b's"
+    },
+    {
+      "input": "bbbb",
+      "expected": false,
+      "description": "Caso inválido: 'bbbb' - Inválido: 0 a's ≠ 2 * 4 b's"
+    },
+    {
+      "input": "bbbbb",
+      "expected": false,
+      "description": "Caso inválido: 'bbbbb' - Inválido: 0 a's ≠ 2 * 5 b's"
+    },
+    {
+      "input": "ab",
+      "expected": false,
+      "description": "Caso inválido: 'ab' - Inválido: 1 a's ≠ 2 * 1 b's"
+    },
+    {
+      "input": "abb",
+      "expected": false,
+      "description": "Caso inválido: 'abb' - Inválido: 1 a's ≠ 2 * 2 b's"
+    },
+    {
+      "input": "aab",
+      "expected": false,
+      "description": "Caso inválido: 'aab' - Válido: 2 a's = 2 * 1 b's"
+    },
+    {
+      "input": "aabb",
+      "expected": false,
+      "description": "Caso inválido: 'aabb' - Inválido: 2 a's ≠ 2 * 2 b's"
+    },
+    {
+      "input": "aaab",
+      "expected": false,
+      "description": "Caso inválido: 'aaab' - Inválido: 3 a's ≠ 2 * 1 b's"
+    },
+    {
+      "input": "aabbb",
+      "expected": false,
+      "description": "Caso inválido: 'aabbb' - Inválido: 2 a's ≠ 2 * 3 b's"
+    },
+    {
+      "input": "aaabb",
+      "expected": false,
+      "description": "Caso inválido: 'aaabb' - Inválido: 3 a's ≠ 2 * 2 b's"
+    },
+    {
+      "input": "aaaab",
+      "expected": false,
+      "description": "Caso inválido: 'aaaab' - Inválido: 4 a's ≠ 2 * 1 b's"
+    },
+    {
+      "input": "aabbbb",
+      "expected": false,
+      "description": "Caso inválido: 'aabbbb' - Inválido: 2 a's ≠ 2 * 4 b's"
+    },
+    {
+      "input": "aaabbb",
+      "expected": false,
+      "description": "Caso inválido: 'aaabbb' - Inválido: 3 a's ≠ 2 * 3 b's"
+    },
+    {
+      "input": "aaaaab",
+      "expected": false,
+      "description": "Caso inválido: 'aaaaab' - Inválido: 5 a's ≠ 2 * 1 b's"
+    },
+    {
+      "input": "aabbbbb",
+      "expected": false,
+      "description": "Caso inválido: 'aabbbbb' - Inválido: 2 a's ≠ 2 * 5 b's"
+    },
+    {
+      "input": "aaabbbb",
+      "expected": false,
+      "description": "Caso inválido: 'aaabbbb' - Inválido: 3 a's ≠ 2 * 4 b's"
+    },
+    {
+      "input": "aaaaaab",
+      "expected": false,
+      "description": "Caso inválido: 'aaaaaab' - Inválido: 6 a's ≠ 2 * 1 b's"
+    },
+    {
+      "input": "aabbbbbb",
+      "expected": false,
+      "description": "Caso inválido: 'aabbbbbb' - Inválido: 2 a's ≠ 2 * 6 b's"
+    },
+    {
+      "input": "aaabbbbb",
+      "expected": false,
+      "description": "Caso inválido: 'aaabbbbb' - Inválido: 3 a's ≠ 2 * 5 b's"
+    },
+    {
+      "input": "aaaaaaab",
+      "expected": false,
+      "description": "Caso inválido: 'aaaaaaab' - Inválido: 7 a's ≠ 2 * 1 b's"
+    },
+    {
+      "input": "aabbbbbbb",
+      "expected": false,
+      "description": "Caso inválido: 'aabbbbbbb' - Inválido: 2 a's ≠ 2 * 7 b's"
+    },
+    {
+      "input": "aaabbbbbb",
+      "expected": false,
+      "description": "Caso inválido: 'aaabbbbbb' - Inválido: 3 a's ≠ 2 * 6 b's"
+    },
+    {
+      "input": "aaaab",
+      "expected": false,
+      "description": "Caso inválido: 'aaaab' - Inválido: 4 a's ≠ 2 * 1 b's"
+    },
+    {
+      "input": "aaaaab",
+      "expected": false,
+      "description": "Caso inválido: 'aaaaab' - Inválido: 5 a's ≠ 2 * 1 b's"
+    },
+    {
+      "input": "aaaaaab",
+      "expected": false,
+      "description": "Caso inválido: 'aaaaaab' - Inválido: 6 a's ≠ 2 * 1 b's"
+    },
+    {
+      "input": "aaaaaaab",
+      "expected": false,
+      "description": "Caso inválido: 'aaaaaaab' - Inválido: 7 a's ≠ 2 * 1 b's"
+    },
+    {
+      "input": "aaaaaaaab",
+      "expected": false,
+      "description": "Caso inválido: 'aaaaaaaab' - Inválido: 8 a's ≠ 2 * 1 b's"
+    },
+    {
+      "input": "aaaaaaaaab",
+      "expected": false,
+      "description": "Caso inválido: 'aaaaaaaaab' - Inválido: 9 a's ≠ 2 * 1 b's"
+    },
+    {
+      "input": "aaaaaaaaaab",
+      "expected": false,
+      "description": "Caso inválido: 'aaaaaaaaaab' - Inválido: 10 a's ≠ 2 * 1 b's"
+    },
+    {
+      "input": "aaaabb",
+      "expected": false,
+      "description": "Caso inválido: 'aaaabb' - Válido: 4 a's = 2 * 2 b's"
+    },
+    {
+      "input": "aaaaabb",
+      "expected": false,
+      "description": "Caso inválido: 'aaaaabb' - Inválido: 5 a's ≠ 2 * 2 b's"
+    },
+    {
+      "input": "aaaaaabb",
+      "expected": false,
+      "description": "Caso inválido: 'aaaaaabb' - Inválido: 6 a's ≠ 2 * 2 b's"
+    },
+    {
+      "input": "aaaaaaabb",
+      "expected": false,
+      "description": "Caso inválido: 'aaaaaaabb' - Inválido: 7 a's ≠ 2 * 2 b's"
+    },
+    {
+      "input": "aaaaaaaabb",
+      "expected": false,
+      "description": "Caso inválido: 'aaaaaaaabb' - Inválido: 8 a's ≠ 2 * 2 b's"
+    },
+    {
+      "input": "aaaaaaaaabb",
+      "expected": false,
+      "description": "Caso inválido: 'aaaaaaaaabb' - Inválido: 9 a's ≠ 2 * 2 b's"
+    },
+    {
+      "input": "aaaaaaaaaabb",
+      "expected": false,
+      "description": "Caso inválido: 'aaaaaaaaaabb' - Inválido: 10 a's ≠ 2 * 2 b's"
+    },
+    {
+      "input": "abc",
+      "expected": false,
+      "description": "Caso inválido: 'abc' - Contém símbolo inválido: 'c'"
+    },
+    {
+      "input": "aabbc",
+      "expected": false,
+      "description": "Caso inválido: 'aabbc' - Contém símbolo inválido: 'c'"
+    },
+    {
+      "input": "aabb1",
+      "expected": false,
+      "description": "Caso inválido: 'aabb1' - Contém símbolo inválido: '1'"
+    },
+    {
+      "input": "aabbx",
+      "expected": false,
+      "description": "Caso inválido: 'aabbx' - Contém símbolo inválido: 'x'"
+    },
+    {
+      "input": "aabb ",
+      "expected": false,
+      "description": "Caso inválido: 'aabb ' - Contém símbolo inválido: ' '"
+    },
+    {
+      "input": "aabb\n",
+      "expected": false,
+      "description": "Caso inválido: 'aabb\n' - Contém símbolo inválido: '\n'"
+    },
+    {
+      "input": "aabb\t",
+      "expected": false,
+      "description": "Caso inválido: 'aabb\t' - Contém símbolo inválido: '\t'"
+    },
+    {
+      "input": "aabb\r",
+      "expected": false,
+      "description": "Caso inválido: 'aabb\r' - Contém símbolo inválido: '\r'"
+    },
+    {
+      "input": "aabb\u0000",
+      "expected": false,
+      "description": "Caso inválido: 'aabb\u0000' - Contém símbolo inválido: '\u0000'"
+    },
+    {
+      "input": "aabb\b",
+      "expected": false,
+      "description": "Caso inválido: 'aabb\b' - Contém símbolo inválido: '\b'"
+    },
+    {
+      "input": "aabb\f",
+      "expected": false,
+      "description": "Caso inválido: 'aabb\f' - Contém símbolo inválido: '\f'"
+    },
+    {
+      "input": "aabb\u000b",
+      "expected": false,
+      "description": "Caso inválido: 'aabb\u000b' - Contém símbolo inválido: '\u000b'"
+    },
+    {
+      "input": "aabb\u0007",
+      "expected": false,
+      "description": "Caso inválido: 'aabb\u0007' - Contém símbolo inválido: '\u0007'"
+    },
+    {
+      "input": "aabb\\e",
+      "expected": false,
+      "description": "Caso inválido: 'aabb\\e' - Contém símbolo inválido: '\\'"
+    },
+    {
+      "input": "aabb\u001b",
+      "expected": false,
+      "description": "Caso inválido: 'aabb\u001b' - Contém símbolo inválido: '\u001b'"
+    },
+    {
+      "input": "aabb\u001b[",
+      "expected": false,
+      "description": "Caso inválido: 'aabb\u001b[' - Contém símbolo inválido: '\u001b'"
+    },
+    {
+      "input": "aabb\u001b[0m",
+      "expected": false,
+      "description": "Caso inválido: 'aabb\u001b[0m' - Contém símbolo inválido: '\u001b'"
+    },
+    {
+      "input": "aabb\u001b[1m",
+      "expected": false,
+      "description": "Caso inválido: 'aabb\u001b[1m' - Contém símbolo inválido: '\u001b'"
+    },
+    {
+      "input": "aabb\u001b[31m",
+      "expected": false,
+      "description": "Caso inválido: 'aabb\u001b[31m' - Contém símbolo inválido: '\u001b'"
+    },
+    {
+      "input": "aabb\u001b[32m",
+      "expected": false,
+      "description": "Caso inválido: 'aabb\u001b[32m' - Contém símbolo inválido: '\u001b'"
+    },
+    {
+      "input": "aabb\u001b[33m",
+      "expected": false,
+      "description": "Caso inválido: 'aabb\u001b[33m' - Contém símbolo inválido: '\u001b'"
+    },
+    {
+      "input": "aabb\u001b[34m",
+      "expected": false,
+      "description": "Caso inválido: 'aabb\u001b[34m' - Contém símbolo inválido: '\u001b'"
+    },
+    {
+      "input": "aabb\u001b[35m",
+      "expected": false,
+      "description": "Caso inválido: 'aabb\u001b[35m' - Contém símbolo inválido: '\u001b'"
+    },
+    {
+      "input": "aabb\u001b[36m",
+      "expected": false,
+      "description": "Caso inválido: 'aabb\u001b[36m' - Contém símbolo inválido: '\u001b'"
+    },
+    {
+      "input": "aabb\u001b[37m",
+      "expected": false,
+      "description": "Caso inválido: 'aabb\u001b[37m' - Contém símbolo inválido: '\u001b'"
+    }
+  ]
+}

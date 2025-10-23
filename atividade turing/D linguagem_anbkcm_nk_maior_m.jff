@@ -1,230 +1,639 @@
-<?xml version="1.0" encoding="UTF-8" standalone="no"?><!--Created with JFLAP 7.1.--><structure>&#13;
-	<type>turing</type>&#13;
-	<automaton>&#13;
-		<!--The list of states.-->&#13;
-		<state id="0" name="q0">&#13;
-			<x>98.0</x>&#13;
-			<y>116.0</y>&#13;
-			<initial/>&#13;
-		</state>&#13;
-		<state id="1" name="q1">&#13;
-			<x>197.0</x>&#13;
-			<y>12.0</y>&#13;
-		</state>&#13;
-		<state id="2" name="q2">&#13;
-			<x>304.0</x>&#13;
-			<y>142.0</y>&#13;
-		</state>&#13;
-		<state id="3" name="q3">&#13;
-			<x>291.0</x>&#13;
-			<y>-36.0</y>&#13;
-		</state>&#13;
-		<state id="4" name="q4">&#13;
-			<x>380.0</x>&#13;
-			<y>-47.0</y>&#13;
-		</state>&#13;
-		<state id="5" name="q5">&#13;
-			<x>483.0</x>&#13;
-			<y>-39.0</y>&#13;
-		</state>&#13;
-		<state id="6" name="q6">&#13;
-			<x>621.0</x>&#13;
-			<y>30.0</y>&#13;
-		</state>&#13;
-		<state id="7" name="q7">&#13;
-			<x>454.0</x>&#13;
-			<y>93.0</y>&#13;
-			<final/>&#13;
-		</state>&#13;
-		<!--The list of transitions.-->&#13;
-		<transition>&#13;
-			<from>4</from>&#13;
-			<to>5</to>&#13;
-			<read>b</read>&#13;
-			<write>X</write>&#13;
-			<move>R</move>&#13;
-		</transition>&#13;
-		<transition>&#13;
-			<from>5</from>&#13;
-			<to>6</to>&#13;
-			<read>X</read>&#13;
-			<write>X</write>&#13;
-			<move>L</move>&#13;
-		</transition>&#13;
-		<transition>&#13;
-			<from>2</from>&#13;
-			<to>0</to>&#13;
-			<read/>&#13;
-			<write/>&#13;
-			<move>R</move>&#13;
-		</transition>&#13;
-		<transition>&#13;
-			<from>1</from>&#13;
-			<to>3</to>&#13;
-			<read/>&#13;
-			<write/>&#13;
-			<move>L</move>&#13;
-		</transition>&#13;
-		<transition>&#13;
-			<from>3</from>&#13;
-			<to>4</to>&#13;
-			<read/>&#13;
-			<write/>&#13;
-			<move>R</move>&#13;
-		</transition>&#13;
-		<transition>&#13;
-			<from>6</from>&#13;
-			<to>4</to>&#13;
-			<read/>&#13;
-			<write/>&#13;
-			<move>R</move>&#13;
-		</transition>&#13;
-		<transition>&#13;
-			<from>0</from>&#13;
-			<to>1</to>&#13;
-			<read>a</read>&#13;
-			<write>X</write>&#13;
-			<move>R</move>&#13;
-		</transition>&#13;
-		<transition>&#13;
-			<from>5</from>&#13;
-			<to>7</to>&#13;
-			<read/>&#13;
-			<write/>&#13;
-			<move>S</move>&#13;
-		</transition>&#13;
-		<transition>&#13;
-			<from>2</from>&#13;
-			<to>2</to>&#13;
-			<read>a</read>&#13;
-			<write>a</write>&#13;
-			<move>L</move>&#13;
-		</transition>&#13;
-		<transition>&#13;
-			<from>6</from>&#13;
-			<to>6</to>&#13;
-			<read>X</read>&#13;
-			<write>X</write>&#13;
-			<move>L</move>&#13;
-		</transition>&#13;
-		<transition>&#13;
-			<from>2</from>&#13;
-			<to>2</to>&#13;
-			<read>b</read>&#13;
-			<write>b</write>&#13;
-			<move>L</move>&#13;
-		</transition>&#13;
-		<transition>&#13;
-			<from>3</from>&#13;
-			<to>3</to>&#13;
-			<read>X</read>&#13;
-			<write>X</write>&#13;
-			<move>L</move>&#13;
-		</transition>&#13;
-		<transition>&#13;
-			<from>2</from>&#13;
-			<to>2</to>&#13;
-			<read>X</read>&#13;
-			<write>X</write>&#13;
-			<move>L</move>&#13;
-		</transition>&#13;
-		<transition>&#13;
-			<from>2</from>&#13;
-			<to>2</to>&#13;
-			<read>c</read>&#13;
-			<write>c</write>&#13;
-			<move>L</move>&#13;
-		</transition>&#13;
-		<transition>&#13;
-			<from>6</from>&#13;
-			<to>6</to>&#13;
-			<read>a</read>&#13;
-			<write>a</write>&#13;
-			<move>L</move>&#13;
-		</transition>&#13;
-		<transition>&#13;
-			<from>6</from>&#13;
-			<to>6</to>&#13;
-			<read>b</read>&#13;
-			<write>b</write>&#13;
-			<move>L</move>&#13;
-		</transition>&#13;
-		<transition>&#13;
-			<from>3</from>&#13;
-			<to>3</to>&#13;
-			<read>a</read>&#13;
-			<write>a</write>&#13;
-			<move>L</move>&#13;
-		</transition>&#13;
-		<transition>&#13;
-			<from>3</from>&#13;
-			<to>3</to>&#13;
-			<read>b</read>&#13;
-			<write>b</write>&#13;
-			<move>L</move>&#13;
-		</transition>&#13;
-		<transition>&#13;
-			<from>3</from>&#13;
-			<to>3</to>&#13;
-			<read>c</read>&#13;
-			<write>c</write>&#13;
-			<move>L</move>&#13;
-		</transition>&#13;
-		<transition>&#13;
-			<from>0</from>&#13;
-			<to>0</to>&#13;
-			<read>X</read>&#13;
-			<write>X</write>&#13;
-			<move>R</move>&#13;
-		</transition>&#13;
-		<transition>&#13;
-			<from>1</from>&#13;
-			<to>1</to>&#13;
-			<read>b</read>&#13;
-			<write>b</write>&#13;
-			<move>R</move>&#13;
-		</transition>&#13;
-		<transition>&#13;
-			<from>1</from>&#13;
-			<to>1</to>&#13;
-			<read>X</read>&#13;
-			<write>X</write>&#13;
-			<move>R</move>&#13;
-		</transition>&#13;
-		<transition>&#13;
-			<from>1</from>&#13;
-			<to>1</to>&#13;
-			<read>a</read>&#13;
-			<write>a</write>&#13;
-			<move>R</move>&#13;
-		</transition>&#13;
-		<transition>&#13;
-			<from>4</from>&#13;
-			<to>4</to>&#13;
-			<read>X</read>&#13;
-			<write>X</write>&#13;
-			<move>R</move>&#13;
-		</transition>&#13;
-		<transition>&#13;
-			<from>5</from>&#13;
-			<to>5</to>&#13;
-			<read>b</read>&#13;
-			<write>b</write>&#13;
-			<move>R</move>&#13;
-		</transition>&#13;
-		<transition>&#13;
-			<from>5</from>&#13;
-			<to>5</to>&#13;
-			<read>X</read>&#13;
-			<write>X</write>&#13;
-			<move>R</move>&#13;
-		</transition>&#13;
-		<transition>&#13;
-			<from>1</from>&#13;
-			<to>2</to>&#13;
-			<read>c</read>&#13;
-			<write>X</write>&#13;
-			<move>L</move>&#13;
-		</transition>&#13;
-	</automaton>&#13;
+<?xml version="1.0" encoding="UTF-8" standalone="no"?><!--Created with JFLAP 7.1.--><structure>
+	<type>turing</type>
+	<automaton>
+		<!--The list of states.-->
+		<state id="0" name="q0">
+			<x>50.0</x>
+			<y>150.0</y>
+			<initial/>
+			<label>Lê primeiro símbolo</label>
+		</state>
+		<state id="16" name="q0_mark">
+			<x>50.0</x>
+			<y>250.0</y>
+			<label>Escreve marcador</label>
+		</state>
+		<state id="17" name="q0_return">
+			<x>150.0</x>
+			<y>250.0</y>
+			<label>Retorna ao primeiro símbolo</label>
+		</state>
+		<state id="1" name="q_in_a">
+			<x>150.0</x>
+			<y>50.0</y>
+			<label>Na secao 'a'</label>
+		</state>
+		<state id="2" name="q_in_b">
+			<x>300.0</x>
+			<y>50.0</y>
+			<label>Na secao 'b'</label>
+		</state>
+		<state id="3" name="q_in_c">
+			<x>450.0</x>
+			<y>50.0</y>
+			<label>Na secao 'c'</label>
+		</state>
+		<state id="4" name="q_rewind">
+			<x>600.0</x>
+			<y>150.0</y>
+			<label>Vai para inicio</label>
+		</state>
+		<state id="5" name="q_find_last_c">
+			<x>750.0</x>
+			<y>150.0</y>
+			<label>Vai para fim, procura 'c'</label>
+		</state>
+		<state id="6" name="q_find_last_b">
+			<x>600.0</x>
+			<y>250.0</y>
+			<label>Marcou c (Z), procura 'b'</label>
+		</state>
+		<state id="7" name="q_find_last_a">
+			<x>450.0</x>
+			<y>250.0</y>
+			<label>Marcou b (Y), procura 'a'</label>
+		</state>
+		<state id="8" name="q_goto_end">
+			<x>300.0</x>
+			<y>250.0</y>
+			<label>Marcou a (X), vai para fim</label>
+		</state>
+		<state id="9" name="q_check_excess">
+			<x>750.0</x>
+			<y>350.0</y>
+			<label>Fim dos 'c's, verifica a e b</label>
+		</state>
+		<state id="10" name="q_rewind_check">
+			<x>600.0</x>
+			<y>450.0</y>
+			<label>Vai para inicio p/ verificar</label>
+		</state>
+		<state id="11" name="q_verify_a">
+			<x>450.0</x>
+			<y>450.0</y>
+			<label>Procura 'a' nao marcado</label>
+		</state>
+		<state id="12" name="q_skip_a_verify_b">
+			<x>300.0</x>
+			<y>450.0</y>
+			<label>Achou 'a', pula p/ 'b'</label>
+		</state>
+		<state id="13" name="q_verify_b">
+			<x>150.0</x>
+			<y>450.0</y>
+			<label>Procura 'b' nao marcado</label>
+		</state>
+		<state id="14" name="q_final_scan">
+			<x>0.0</x>
+			<y>450.0</y>
+			<label>Achou 'b', verifica resto</label>
+		</state>
+		<state id="15" name="q_accept">
+			<x>-150.0</x>
+			<y>450.0</y>
+			<final/>
+			<label>Aceita</label>
+		</state>
+		<!--The list of transitions.-->
+
+		<!-- Marca primeiro símbolo com marcador especial e verifica formato a*b*c* -->
+		<transition> <!-- Marca primeiro 'a' com ! -->
+			<from>0</from>
+			<to>1</to>
+			<read>a</read>
+			<write>!</write>
+			<move>R</move>
+		</transition>
+		<transition> <!-- Marca primeiro 'b' com @ -->
+			<from>0</from>
+			<to>2</to>
+			<read>b</read>
+			<write>@</write>
+			<move>R</move>
+		</transition>
+		<transition> <!-- Marca primeiro 'c' com $ -->
+			<from>0</from>
+			<to>3</to>
+			<read>c</read>
+			<write>$</write>
+			<move>R</move>
+		</transition>
+		<transition>
+			<from>1</from>
+			<to>1</to>
+			<read>a</read>
+			<write>a</write>
+			<move>R</move>
+		</transition>
+		<transition>
+			<from>1</from>
+			<to>2</to>
+			<read>b</read>
+			<write>b</write>
+			<move>R</move>
+		</transition>
+		<transition>
+			<from>1</from>
+			<to>3</to>
+			<read>c</read>
+			<write>c</write>
+			<move>R</move>
+		</transition>
+		<transition> <!-- Fim da secao 'a', vai rebobinar -->
+			<from>1</from>
+			<to>4</to>
+			<read/>
+			<write/>
+			<move>L</move>
+		</transition>
+		<transition>
+			<from>2</from>
+			<to>2</to>
+			<read>b</read>
+			<write>b</write>
+			<move>R</move>
+		</transition>
+		<transition> <!-- Fim da secao 'b', vai rebobinar -->
+			<from>2</from>
+			<to>4</to>
+			<read/>
+			<write/>
+			<move>L</move>
+		</transition>
+		<transition>
+			<from>2</from>
+			<to>3</to>
+			<read>c</read>
+			<write>c</write>
+			<move>R</move>
+		</transition>
+		<transition>
+			<from>3</from>
+			<to>3</to>
+			<read>c</read>
+			<write>c</write>
+			<move>R</move>
+		</transition>
+		<transition> <!-- Fim da secao 'c', formato ok, rebobina -->
+			<from>3</from>
+			<to>4</to>
+			<read/>
+			<write/>
+			<move>L</move>
+		</transition>
+        <!-- Rejeita se formato errado: (q1,c), (q1, _ antes de b), (q2,a), (q3,a), (q3,b) - sem transições -->
+
+		<!-- Rebobina para inicio -->
+		<transition>
+			<from>4</from>
+			<to>4</to>
+			<read>a</read>
+			<write>a</write>
+			<move>L</move>
+		</transition>
+		<transition>
+			<from>4</from>
+			<to>4</to>
+			<read>X</read>
+			<write>X</write>
+			<move>L</move>
+		</transition>
+		<transition>
+			<from>4</from>
+			<to>4</to>
+			<read>b</read>
+			<write>b</write>
+			<move>L</move>
+		</transition>
+		<transition>
+			<from>4</from>
+			<to>4</to>
+			<read>Y</read>
+			<write>Y</write>
+			<move>L</move>
+		</transition>
+		<transition>
+			<from>4</from>
+			<to>4</to>
+			<read>c</read>
+			<write>c</write>
+			<move>L</move>
+		</transition>
+		<transition>
+			<from>4</from>
+			<to>4</to>
+			<read>Z</read>
+			<write>Z</write>
+			<move>L</move>
+		</transition>
+        <transition> <!-- Chegou ao inicio (marcador !) -->
+            <from>4</from>
+            <to>5</to>
+            <read>!</read>
+            <write>!</write>
+            <move>R</move>
+        </transition>
+        <transition> <!-- Chegou ao inicio (marcador @) -->
+            <from>4</from>
+            <to>5</to>
+            <read>@</read>
+            <write>@</write>
+            <move>R</move>
+        </transition>
+        <transition> <!-- Chegou ao inicio (marcador $) -->
+            <from>4</from>
+            <to>5</to>
+            <read>$</read>
+            <write>$</write>
+            <move>R</move>
+        </transition>
+
+		<!-- Ciclo Principal: Marcação Reversa -->
+		<transition> <!-- Vai para o fim -->
+			<from>5</from>
+			<to>5</to>
+			<read>a</read>
+			<write>a</write>
+			<move>R</move>
+		</transition>
+        <transition>
+            <from>5</from>
+            <to>5</to>
+            <read>X</read>
+            <write>X</write>
+            <move>R</move>
+        </transition>
+		<transition>
+			<from>5</from>
+			<to>5</to>
+			<read>b</read>
+			<write>b</write>
+			<move>R</move>
+		</transition>
+        <transition>
+            <from>5</from>
+            <to>5</to>
+            <read>Y</read>
+            <write>Y</write>
+			<move>R</move>
+		</transition>
+		<transition> <!-- Encontrou 'c' nao marcado -> marca Z -->
+			<from>5</from>
+			<to>6</to>
+			<read>c</read>
+			<write>Z</write>
+			<move>L</move>
+		</transition>
+		<transition> <!-- Pula 'Z' para encontrar próximo 'c' -->
+			<from>5</from>
+			<to>5</to>
+			<read>Z</read>
+			<write>Z</write>
+			<move>R</move>
+		</transition>
+		<transition> <!-- Se encontrar b, Y, a, X ou _ -> Fim dos c's -->
+			<from>5</from>
+			<to>9</to>
+			<read>b</read>
+			<write>b</write>
+			<move>S</move>
+		</transition>
+        <transition>
+             <from>5</from>
+             <to>9</to>
+             <read>Y</read>
+             <write>Y</write>
+             <move>S</move>
+         </transition>
+         <transition>
+             <from>5</from>
+             <to>9</to>
+             <read>a</read>
+             <write>a</write>
+             <move>S</move>
+         </transition>
+        <transition>
+             <from>5</from>
+             <to>9</to>
+             <read>X</read>
+             <write>X</write>
+             <move>S</move>
+         </transition>
+        <transition> <!-- Caso m=0 -->
+            <from>5</from>
+            <to>9</to>
+            <read/>
+            <write/>
+            <move>S</move>
+        </transition>
+
+		<transition> <!-- Move L sobre c e Z procurando b -->
+			<from>6</from>
+			<to>6</to>
+			<read>c</read>
+			<write>c</write>
+			<move>L</move>
+		</transition>
+		<transition>
+			<from>6</from>
+			<to>6</to>
+			<read>Z</read>
+			<write>Z</write>
+			<move>L</move>
+		</transition>
+		<transition> <!-- Encontrou 'b' -> marca Y -->
+			<from>6</from>
+			<to>7</to>
+			<read>b</read>
+			<write>Y</write>
+			<move>L</move>
+		</transition>
+		<transition> <!-- Pula 'Y' para encontrar 'b' -->
+			<from>6</from>
+			<to>6</to>
+			<read>Y</read>
+			<write>Y</write>
+			<move>L</move>
+		</transition>
+        <!-- Se q6 encontrar a, X ou _ -> k <= m, REJEITA (sem transição) -->
+
+		<transition> <!-- Move L sobre b e Y procurando a -->
+			<from>7</from>
+			<to>7</to>
+			<read>b</read>
+			<write>b</write>
+			<move>L</move>
+		</transition>
+		<transition>
+			<from>7</from>
+			<to>7</to>
+			<read>Y</read>
+			<write>Y</write>
+			<move>L</move>
+		</transition>
+		<transition> <!-- Encontrou 'a' -> marca X -->
+			<from>7</from>
+			<to>8</to>
+			<read>a</read>
+			<write>X</write>
+			<move>R</move>
+		</transition>
+		<transition> <!-- Pula 'X' para encontrar 'a' -->
+			<from>7</from>
+			<to>7</to>
+			<read>X</read>
+			<write>X</write>
+			<move>L</move>
+		</transition>
+        <!-- Se q7 encontrar _ -> n <= m, REJEITA (sem transição) -->
+
+		<transition> <!-- Vai para o fim da fita -->
+			<from>8</from>
+			<to>8</to>
+			<read>a</read>
+			<write>a</write>
+			<move>R</move>
+		</transition>
+		<transition>
+			<from>8</from>
+			<to>8</to>
+			<read>X</read>
+			<write>X</write>
+			<move>R</move>
+		</transition>
+		<transition>
+			<from>8</from>
+			<to>8</to>
+			<read>b</read>
+			<write>b</write>
+			<move>R</move>
+		</transition>
+		<transition>
+			<from>8</from>
+			<to>8</to>
+			<read>Y</read>
+			<write>Y</write>
+			<move>R</move>
+		</transition>
+		<transition>
+			<from>8</from>
+			<to>8</to>
+			<read>c</read>
+			<write>c</write>
+			<move>R</move>
+		</transition>
+		<transition>
+			<from>8</from>
+			<to>8</to>
+			<read>Z</read>
+			<write>Z</write>
+			<move>R</move>
+		</transition>
+		<transition> <!-- Chegou ao fim, volta L e reinicia ciclo -->
+			<from>8</from>
+			<to>5</to>
+			<read/>
+			<write/>
+			<move>L</move>
+		</transition>
+
+		<!-- Verificação de Excesso -->
+        <transition> <!-- Rebobina para inicio -->
+            <from>9</from>
+            <to>10</to>
+            <read/> <!-- Leu algo diferente de c/Z no estado 5 -->
+            <write/>
+            <move>L</move>
+        </transition>
+        <transition> <!-- Pula tudo para esquerda -->
+             <from>10</from>
+             <to>10</to>
+             <read>a</read>
+             <write>a</write>
+             <move>L</move>
+         </transition>
+         <transition>
+              <from>10</from>
+              <to>10</to>
+              <read>X</read>
+              <write>X</write>
+              <move>L</move>
+          </transition>
+          <transition>
+              <from>10</from>
+              <to>10</to>
+              <read>b</read>
+              <write>b</write>
+              <move>L</move>
+          </transition>
+          <transition>
+               <from>10</from>
+               <to>10</to>
+               <read>Y</read>
+               <write>Y</write>
+               <move>L</move>
+           </transition>
+           <transition>
+                <from>10</from>
+                <to>10</to>
+                <read>c</read>
+                <write>c</write>
+                <move>L</move>
+            </transition>
+            <transition>
+                 <from>10</from>
+                 <to>10</to>
+                 <read>Z</read>
+                 <write>Z</write>
+                 <move>L</move>
+             </transition>
+         <transition> <!-- Chegou no inicio (marcador !), '!' conta como 'a' não marcado -->
+             <from>10</from>
+             <to>12</to>
+             <read>!</read>
+             <write>!</write>
+             <move>R</move>
+         </transition>
+         <transition> <!-- Chegou no inicio (marcador @), NÃO há 'a' para verificar -->
+             <from>10</from>
+             <to>12</to>
+             <read>@</read>
+             <write>@</write>
+             <move>R</move>
+         </transition>
+         <transition> <!-- Chegou no inicio (marcador $), NÃO há 'a' nem 'b' para verificar -->
+             <from>10</from>
+             <to>13</to>
+             <read>$</read>
+             <write>$</write>
+             <move>R</move>
+         </transition>
+		<transition> <!-- Pula X -->
+			<from>11</from>
+			<to>11</to>
+			<read>X</read>
+			<write>X</write>
+			<move>R</move>
+		</transition>
+		<transition> <!-- Pula b para encontrar próximo 'a' -->
+			<from>11</from>
+			<to>11</to>
+			<read>b</read>
+			<write>b</write>
+			<move>R</move>
+		</transition>
+		<transition> <!-- Pula Y para encontrar próximo 'a' -->
+			<from>11</from>
+			<to>11</to>
+			<read>Y</read>
+			<write>Y</write>
+			<move>R</move>
+		</transition>
+		<transition> <!-- Pula Z para encontrar próximo 'a' -->
+			<from>11</from>
+			<to>11</to>
+			<read>Z</read>
+			<write>Z</write>
+			<move>R</move>
+		</transition>
+		<transition> <!-- Encontrou 'a' nao marcado -> n > m OK -->
+			<from>11</from>
+			<to>12</to>
+			<read>a</read>
+			<write>a</write>
+			<move>R</move>
+		</transition>
+		<transition> <!-- Encontrou '!' (primeiro 'a' marcado) -> conta como 'a' não marcado -->
+			<from>11</from>
+			<to>12</to>
+			<read>!</read>
+			<write>!</write>
+			<move>R</move>
+		</transition>
+        <!-- Se q11 encontrar _ -> n <= m, REJEITA (sem transição) -->
+
+		<transition> <!-- Pula 'a' e 'X' -->
+			<from>12</from>
+			<to>12</to>
+			<read>a</read>
+			<write>a</write>
+			<move>R</move>
+		</transition>
+		<transition>
+			<from>12</from>
+			<to>12</to>
+			<read>X</read>
+			<write>X</write>
+			<move>R</move>
+		</transition>
+        <transition> <!-- Encontrou unmarked 'b' -> SUCCESS, vai para final scan -->
+            <from>12</from>
+            <to>14</to>
+            <read>b</read>
+            <write>b</write>
+            <move>R</move>
+        </transition>
+        <transition> <!-- Encontrou marked 'b' (Y), precisa procurar unmarked 'b' -->
+            <from>12</from>
+            <to>13</to>
+            <read>Y</read>
+            <write>Y</write>
+            <move>R</move>
+        </transition>
+        <!-- Se q12 encontrar c, Z, _ -> REJEITA -->
+
+		<transition> <!-- Pula Y -->
+			<from>13</from>
+			<to>13</to>
+			<read>Y</read>
+			<write>Y</write>
+			<move>R</move>
+		</transition>
+		<transition> <!-- Pula Z (c marcado) -->
+			<from>13</from>
+			<to>13</to>
+			<read>Z</read>
+			<write>Z</write>
+			<move>R</move>
+		</transition>
+		<transition> <!-- Encontrou unmarked 'b' -> SUCCESS, vai para final scan -->
+			<from>13</from>
+			<to>14</to>
+			<read>b</read>
+			<write>b</write>
+			<move>R</move>
+		</transition>
+        <!-- Se q13 encontrar c não marcado ou _ -> k <= m, REJEITA (sem transição) -->
+
+		<transition> <!-- Pula 'b' e 'Y' ate o fim -->
+			<from>14</from>
+			<to>14</to>
+			<read>b</read>
+			<write>b</write>
+			<move>R</move>
+		</transition>
+		<transition>
+			<from>14</from>
+			<to>14</to>
+			<read>Y</read>
+			<write>Y</write>
+			<move>R</move>
+		</transition>
+		<transition> <!-- Pula 'c' marcado como Z -->
+			<from>14</from>
+			<to>14</to>
+			<read>Z</read>
+			<write>Z</write>
+			<move>R</move>
+		</transition>
+		<transition> <!-- Chegou ao branco -> ACEITA -->
+			<from>14</from>
+			<to>15</to>
+			<read/>
+			<write/>
+			<move>S</move>
+		</transition>
+        <!-- Se q14 encontrar c não marcado -> REJEITA (sem transição) -->
+
+	</automaton>
 </structure>

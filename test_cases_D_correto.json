@@ -1,0 +1,120 @@
+{
+  "language": "{ a^n b^k c^m | n, k > m }",
+  "test_cases": [
+    {
+      "input": "aabbc",
+      "expected": true,
+      "reason": "caso mínimo válido - n=2, k=2, m=1"
+    },
+    {
+      "input": "aaabbc",
+      "expected": true,
+      "reason": "n=3, k=2, m=1 - n=3, k=2, m=1"
+    },
+    {
+      "input": "aabbbc",
+      "expected": true,
+      "reason": "n=2, k=3, m=1 - n=2, k=3, m=1"
+    },
+    {
+      "input": "aaabbbc",
+      "expected": true,
+      "reason": "n=3, k=3, m=1 - n=3, k=3, m=1"
+    },
+    {
+      "input": "aaabbbcc",
+      "expected": true,
+      "reason": "n=3, k=3, m=2 - n=3, k=3, m=2"
+    },
+    {
+      "input": "aaaabbbcc",
+      "expected": true,
+      "reason": "n=4, k=3, m=2 - n=4, k=3, m=2"
+    },
+    {
+      "input": "aaabbbbcc",
+      "expected": true,
+      "reason": "n=3, k=4, m=2 - n=3, k=4, m=2"
+    },
+    {
+      "input": "aaaaabbbbbccc",
+      "expected": true,
+      "reason": "caso maior - n=5, k=5, m=3"
+    },
+    {
+      "input": "aabb",
+      "expected": true,
+      "reason": "m=0 permitido (n,k > 0) - n=2, k=2, m=0"
+    },
+    {
+      "input": "abc",
+      "expected": false,
+      "reason": "n=1, k=1, m=1 (n e k não são > m)"
+    },
+    {
+      "input": "aabc",
+      "expected": false,
+      "reason": "n=2, k=1, m=1 (k não é > m)"
+    },
+    {
+      "input": "abbc",
+      "expected": false,
+      "reason": "n=1, k=2, m=1 (n não é > m)"
+    },
+    {
+      "input": "aabbcc",
+      "expected": false,
+      "reason": "n=2, k=2, m=2 (n e k não são > m)"
+    },
+    {
+      "input": "aaabbbccc",
+      "expected": false,
+      "reason": "n=3, k=3, m=3 (n e k não são > m)"
+    },
+    {
+      "input": "ac",
+      "expected": false,
+      "reason": "k=0 (sem b's)"
+    },
+    {
+      "input": "bc",
+      "expected": false,
+      "reason": "n=0 (sem a's)"
+    },
+    {
+      "input": "",
+      "expected": false,
+      "reason": "String vazia"
+    },
+    {
+      "input": "aaabbcc",
+      "expected": false,
+      "reason": "n=3, k=2, m=2 (k não é > m)"
+    },
+    {
+      "input": "aabbbcc",
+      "expected": false,
+      "reason": "n=2, k=3, m=2 (n não é > m)"
+    },
+    {
+      "input": "aabcbcc",
+      "expected": false,
+      "reason": "Ordem incorreta (b no meio dos c's)"
+    },
+    {
+      "input": "abxc",
+      "expected": false,
+      "reason": "Caractere inválido: 'x'"
+    },
+    {
+      "input": "aabbc",
+      "expected": true,
+      "reason": "n=2, k=2, m=1 - válido (n>m, k>m)"
+    },
+    {
+      "input": "ab",
+      "expected": true,
+      "reason": "n=1, k=1, m=0 - válido (n>m, k>m)"
+    }
+  ]
+}

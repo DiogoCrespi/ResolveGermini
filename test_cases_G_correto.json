@@ -1,0 +1,210 @@
+{
+  "language": "G: {wwR | w ∈ {a, b}*}",
+  "test_cases": [
+    {
+      "input": "",
+      "expected": true,
+      "description": "Caso válido: (string vazia)"
+    },
+    {
+      "input": "aa",
+      "expected": true,
+      "description": "Caso válido: aa"
+    },
+    {
+      "input": "bb",
+      "expected": true,
+      "description": "Caso válido: bb"
+    },
+    {
+      "input": "abba",
+      "expected": true,
+      "description": "Caso válido: abba"
+    },
+    {
+      "input": "baab",
+      "expected": true,
+      "description": "Caso válido: baab"
+    },
+    {
+      "input": "aaaa",
+      "expected": true,
+      "description": "Caso válido: aaaa"
+    },
+    {
+      "input": "bbbb",
+      "expected": true,
+      "description": "Caso válido: bbbb"
+    },
+    {
+      "input": "aabbaa",
+      "expected": true,
+      "description": "Caso válido: aabbaa"
+    },
+    {
+      "input": "aabbbbaa",
+      "expected": true,
+      "description": "Caso válido: aabbbbaa"
+    },
+    {
+      "input": "aabbaabbaa",
+      "expected": true,
+      "description": "Caso válido: aabbaabbaa"
+    },
+    {
+      "input": "a",
+      "expected": false,
+      "description": "Caso inválido: a"
+    },
+    {
+      "input": "b",
+      "expected": false,
+      "description": "Caso inválido: b"
+    },
+    {
+      "input": "ab",
+      "expected": false,
+      "description": "Caso inválido: ab"
+    },
+    {
+      "input": "ba",
+      "expected": false,
+      "description": "Caso inválido: ba"
+    },
+    {
+      "input": "abc",
+      "expected": false,
+      "description": "Caso inválido: abc"
+    },
+    {
+      "input": "aab",
+      "expected": false,
+      "description": "Caso inválido: aab"
+    },
+    {
+      "input": "abb",
+      "expected": false,
+      "description": "Caso inválido: abb"
+    },
+    {
+      "input": "abab",
+      "expected": false,
+      "description": "Caso inválido: abab"
+    },
+    {
+      "input": "aabb",
+      "expected": false,
+      "description": "Caso inválido: aabb"
+    },
+    {
+      "input": "bbaa",
+      "expected": false,
+      "description": "Caso inválido: bbaa"
+    },
+    {
+      "input": "ababab",
+      "expected": false,
+      "description": "Caso inválido: ababab"
+    },
+    {
+      "input": "bababa",
+      "expected": false,
+      "description": "Caso inválido: bababa"
+    },
+    {
+      "input": "bbabab",
+      "expected": false,
+      "description": "Caso inválido: bbabab"
+    },
+    {
+      "input": "ababba",
+      "expected": false,
+      "description": "Caso inválido: ababba"
+    },
+    {
+      "input": "bbaaabbb",
+      "expected": false,
+      "description": "Caso inválido: bbaaabbb"
+    },
+    {
+      "input": "abababababababab",
+      "expected": false,
+      "description": "Caso inválido: abababababababab"
+    },
+    {
+      "input": "babababababababa",
+      "expected": false,
+      "description": "Caso inválido: babababababababa"
+    },
+    {
+      "input": "aabbaabbaabbaabb",
+      "expected": false,
+      "description": "Caso inválido: aabbaabbaabbaabb"
+    },
+    {
+      "input": "bbabbaabbaabbaab",
+      "expected": false,
+      "description": "Caso inválido: bbabbaabbaabbaab"
+    },
+    {
+      "input": "aabbcc",
+      "expected": false,
+      "description": "Caso inválido: aabbcc"
+    },
+    {
+      "input": "aabb1",
+      "expected": false,
+      "description": "Caso inválido: aabb1"
+    },
+    {
+      "input": "aabbx",
+      "expected": false,
+      "description": "Caso inválido: aabbx"
+    },
+    {
+      "input": "aabb ",
+      "expected": false,
+      "description": "Caso inválido: aabb "
+    },
+    {
+      "input": "aabb\n",
+      "expected": false,
+      "description": "Caso inválido: aabb\n"
+    },
+    {
+      "input": "aabb\t",
+      "expected": false,
+      "description": "Caso inválido: aabb\t"
+    },
+    {
+      "input": "aabb\r",
+      "expected": false,
+      "description": "Caso inválido: aabb\r"
+    },
+    {
+      "input": "aabb\u0000",
+      "expected": false,
+      "description": "Caso inválido: aabb\u0000"
+    },
+    {
+      "input": "aabb\b",
+      "expected": false,
+      "description": "Caso inválido: aabb\b"
+    },
+    {
+      "input": "aabb\f",
+      "expected": false,
+      "description": "Caso inválido: aabb\f"
+    },
+    {
+      "input": "aabb\u000b",
+      "expected": false,
+      "description": "Caso inválido: aabb\u000b"
+    },
+    {
+      "input": "aabb\u0007",
+      "expected": false,
+      "description": "Caso inválido: aabb\u0007"
+    }
+  ]
+}

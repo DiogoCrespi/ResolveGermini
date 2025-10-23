@@ -1,0 +1,1005 @@
+{
+  "language": "F: { a^{n+m} b^{n+m} c^m | n, m > 0 }",
+  "test_cases": [
+    {
+      "input": "aabbc",
+      "expected": true,
+      "description": "Caso válido: aabbc"
+    },
+    {
+      "input": "aaabbbcc",
+      "expected": true,
+      "description": "Caso válido: aaabbbcc"
+    },
+    {
+      "input": "aaabbbc",
+      "expected": true,
+      "description": "Caso válido: aaabbbc"
+    },
+    {
+      "input": "aaaabbbbcc",
+      "expected": true,
+      "description": "Caso válido: aaaabbbbcc"
+    },
+    {
+      "input": "aaaabbbbccc",
+      "expected": true,
+      "description": "Caso válido: aaaabbbbccc"
+    },
+    {
+      "input": "aaaabbbbc",
+      "expected": true,
+      "description": "Caso válido: aaaabbbbc"
+    },
+    {
+      "input": "aaaaabbbbbcc",
+      "expected": true,
+      "description": "Caso válido: aaaaabbbbbcc"
+    },
+    {
+      "input": "aaaaabbbbbccc",
+      "expected": true,
+      "description": "Caso válido: aaaaabbbbbccc"
+    },
+    {
+      "input": "aaaaabbbbbc",
+      "expected": true,
+      "description": "Caso válido: aaaaabbbbbc"
+    },
+    {
+      "input": "aaaaabbbbbcccc",
+      "expected": true,
+      "description": "Caso válido: aaaaabbbbbcccc"
+    },
+    {
+      "input": "aaaaaabbbbbbc",
+      "expected": true,
+      "description": "Caso válido: aaaaaabbbbbbc"
+    },
+    {
+      "input": "aaaaaabbbbbbccccc",
+      "expected": true,
+      "description": "Caso válido: aaaaaabbbbbbccccc"
+    },
+    {
+      "input": "aaaaaabbbbbbcccc",
+      "expected": true,
+      "description": "Caso válido: aaaaaabbbbbbcccc"
+    },
+    {
+      "input": "aaaaaabbbbbbcc",
+      "expected": true,
+      "description": "Caso válido: aaaaaabbbbbbcc"
+    },
+    {
+      "input": "aaaaaabbbbbbccc",
+      "expected": true,
+      "description": "Caso válido: aaaaaabbbbbbccc"
+    },
+    {
+      "input": "aaaaaaabbbbbbbc",
+      "expected": true,
+      "description": "Caso válido: aaaaaaabbbbbbbc"
+    },
+    {
+      "input": "",
+      "expected": false,
+      "description": "Caso inválido: "
+    },
+    {
+      "input": "a",
+      "expected": false,
+      "description": "Caso inválido: a"
+    },
+    {
+      "input": "b",
+      "expected": false,
+      "description": "Caso inválido: b"
+    },
+    {
+      "input": "c",
+      "expected": false,
+      "description": "Caso inválido: c"
+    },
+    {
+      "input": "ab",
+      "expected": false,
+      "description": "Caso inválido: ab"
+    },
+    {
+      "input": "ac",
+      "expected": false,
+      "description": "Caso inválido: ac"
+    },
+    {
+      "input": "bc",
+      "expected": false,
+      "description": "Caso inválido: bc"
+    },
+    {
+      "input": "abc",
+      "expected": false,
+      "description": "Caso inválido: abc"
+    },
+    {
+      "input": "aabb",
+      "expected": false,
+      "description": "Caso inválido: aabb"
+    },
+    {
+      "input": "aacc",
+      "expected": false,
+      "description": "Caso inválido: aacc"
+    },
+    {
+      "input": "bbcc",
+      "expected": false,
+      "description": "Caso inválido: bbcc"
+    },
+    {
+      "input": "aabcc",
+      "expected": false,
+      "description": "Caso inválido: aabcc"
+    },
+    {
+      "input": "abbcc",
+      "expected": false,
+      "description": "Caso inválido: abbcc"
+    },
+    {
+      "input": "aabbbcc",
+      "expected": false,
+      "description": "Caso inválido: aabbbcc"
+    },
+    {
+      "input": "aaabcc",
+      "expected": false,
+      "description": "Caso inválido: aaabcc"
+    },
+    {
+      "input": "aaabbb",
+      "expected": false,
+      "description": "Caso inválido: aaabbb"
+    },
+    {
+      "input": "aaabbbccc",
+      "expected": false,
+      "description": "Caso inválido: aaabbbccc"
+    },
+    {
+      "input": "aaaabbb",
+      "expected": false,
+      "description": "Caso inválido: aaaabbb"
+    },
+    {
+      "input": "aaaabbbb",
+      "expected": false,
+      "description": "Caso inválido: aaaabbbb"
+    },
+    {
+      "input": "aaaabbbbccc",
+      "expected": false,
+      "description": "Caso inválido: aaaabbbbccc"
+    },
+    {
+      "input": "aaaaabbbbb",
+      "expected": false,
+      "description": "Caso inválido: aaaaabbbbb"
+    },
+    {
+      "input": "aaaaabbbbbcc",
+      "expected": false,
+      "description": "Caso inválido: aaaaabbbbbcc"
+    },
+    {
+      "input": "aaaaabbbbbccc",
+      "expected": false,
+      "description": "Caso inválido: aaaaabbbbbccc"
+    },
+    {
+      "input": "aaaaaabbbbbb",
+      "expected": false,
+      "description": "Caso inválido: aaaaaabbbbbb"
+    },
+    {
+      "input": "aaaaaabbbbbbcc",
+      "expected": false,
+      "description": "Caso inválido: aaaaaabbbbbbcc"
+    },
+    {
+      "input": "aaaaaabbbbbbccc",
+      "expected": false,
+      "description": "Caso inválido: aaaaaabbbbbbccc"
+    },
+    {
+      "input": "aaaaaabbbbbbcccc",
+      "expected": false,
+      "description": "Caso inválido: aaaaaabbbbbbcccc"
+    },
+    {
+      "input": "aaaaaabbbbbbccccc",
+      "expected": false,
+      "description": "Caso inválido: aaaaaabbbbbbccccc"
+    },
+    {
+      "input": "aaaaaaabbbbbbb",
+      "expected": false,
+      "description": "Caso inválido: aaaaaaabbbbbbb"
+    },
+    {
+      "input": "aaaaaaabbbbbbbcc",
+      "expected": false,
+      "description": "Caso inválido: aaaaaaabbbbbbbcc"
+    },
+    {
+      "input": "aaaaaaabbbbbbbccc",
+      "expected": false,
+      "description": "Caso inválido: aaaaaaabbbbbbbccc"
+    },
+    {
+      "input": "aaaaaaabbbbbbbcccc",
+      "expected": false,
+      "description": "Caso inválido: aaaaaaabbbbbbbcccc"
+    },
+    {
+      "input": "aaaaaaabbbbbbbccccc",
+      "expected": false,
+      "description": "Caso inválido: aaaaaaabbbbbbbccccc"
+    },
+    {
+      "input": "aaaaaaabbbbbbbcccccc",
+      "expected": false,
+      "description": "Caso inválido: aaaaaaabbbbbbbcccccc"
+    },
+    {
+      "input": "aaaaaaaabbbbbbbb",
+      "expected": false,
+      "description": "Caso inválido: aaaaaaaabbbbbbbb"
+    },
+    {
+      "input": "aaaaaaaabbbbbbbbcc",
+      "expected": false,
+      "description": "Caso inválido: aaaaaaaabbbbbbbbcc"
+    },
+    {
+      "input": "aaaaaaaabbbbbbbbccc",
+      "expected": false,
+      "description": "Caso inválido: aaaaaaaabbbbbbbbccc"
+    },
+    {
+      "input": "aaaaaaaabbbbbbbbcccc",
+      "expected": false,
+      "description": "Caso inválido: aaaaaaaabbbbbbbbcccc"
+    },
+    {
+      "input": "aaaaaaaabbbbbbbbccccc",
+      "expected": false,
+      "description": "Caso inválido: aaaaaaaabbbbbbbbccccc"
+    },
+    {
+      "input": "aaaaaaaabbbbbbbbcccccc",
+      "expected": false,
+      "description": "Caso inválido: aaaaaaaabbbbbbbbcccccc"
+    },
+    {
+      "input": "aaaaaaaabbbbbbbbccccccc",
+      "expected": false,
+      "description": "Caso inválido: aaaaaaaabbbbbbbbccccccc"
+    },
+    {
+      "input": "aaaaaaaabbbbbbbbcccccccc",
+      "expected": false,
+      "description": "Caso inválido: aaaaaaaabbbbbbbbcccccccc"
+    },
+    {
+      "input": "aaaaaaaabbbbbbbbccccccccc",
+      "expected": false,
+      "description": "Caso inválido: aaaaaaaabbbbbbbbccccccccc"
+    },
+    {
+      "input": "aaaaaaaabbbbbbbbcccccccccc",
+      "expected": false,
+      "description": "Caso inválido: aaaaaaaabbbbbbbbcccccccccc"
+    },
+    {
+      "input": "aaaaaaaabbbbbbbbccccccccccc",
+      "expected": false,
+      "description": "Caso inválido: aaaaaaaabbbbbbbbccccccccccc"
+    },
+    {
+      "input": "aaaaaaaabbbbbbbbcccccccccccc",
+      "expected": false,
+      "description": "Caso inválido: aaaaaaaabbbbbbbbcccccccccccc"
+    },
+    {
+      "input": "aaaaaaaabbbbbbbbccccccccccccc",
+      "expected": false,
+      "description": "Caso inválido: aaaaaaaabbbbbbbbccccccccccccc"
+    },
+    {
+      "input": "aaaaaaaabbbbbbbbcccccccccccccc",
+      "expected": false,
+      "description": "Caso inválido: aaaaaaaabbbbbbbbcccccccccccccc"
+    },
+    {
+      "input": "aaaaaaaabbbbbbbbccccccccccccccc",
+      "expected": false,
+      "description": "Caso inválido: aaaaaaaabbbbbbbbccccccccccccccc"
+    },
+    {
+      "input": "aaaaaaaabbbbbbbbcccccccccccccccc",
+      "expected": false,
+      "description": "Caso inválido: aaaaaaaabbbbbbbbcccccccccccccccc"
+    },
+    {
+      "input": "aaaaaaaabbbbbbbbccccccccccccccccc",
+      "expected": false,
+      "description": "Caso inválido: aaaaaaaabbbbbbbbccccccccccccccccc"
+    },
+    {
+      "input": "aaaaaaaabbbbbbbbcccccccccccccccccc",
+      "expected": false,
+      "description": "Caso inválido: aaaaaaaabbbbbbbbcccccccccccccccccc"
+    },
+    {
+      "input": "aaaaaaaabbbbbbbbccccccccccccccccccc",
+      "expected": false,
+      "description": "Caso inválido: aaaaaaaabbbbbbbbccccccccccccccccccc"
+    },
+    {
+      "input": "aaaaaaaabbbbbbbbcccccccccccccccccccc",
+      "expected": false,
+      "description": "Caso inválido: aaaaaaaabbbbbbbbcccccccccccccccccccc"
+    },
+    {
+      "input": "aaaaaaaabbbbbbbbccccccccccccccccccccc",
+      "expected": false,
+      "description": "Caso inválido: aaaaaaaabbbbbbbbccccccccccccccccccccc"
+    },
+    {
+      "input": "aaaaaaaabbbbbbbbcccccccccccccccccccccc",
+      "expected": false,
+      "description": "Caso inválido: aaaaaaaabbbbbbbbcccccccccccccccccccccc"
+    },
+    {
+      "input": "aaaaaaaabbbbbbbbccccccccccccccccccccccc",
+      "expected": false,
+      "description": "Caso inválido: aaaaaaaabbbbbbbbccccccccccccccccccccccc"
+    },
+    {
+      "input": "aaaaaaaabbbbbbbbcccccccccccccccccccccccc",
+      "expected": false,
+      "description": "Caso inválido: aaaaaaaabbbbbbbbcccccccccccccccccccccccc"
+    },
+    {
+      "input": "aaaaaaaabbbbbbbbccccccccccccccccccccccccc",
+      "expected": false,
+      "description": "Caso inválido: aaaaaaaabbbbbbbbccccccccccccccccccccccccc"
+    },
+    {
+      "input": "aaaaaaaabbbbbbbbcccccccccccccccccccccccccc",
+      "expected": false,
+      "description": "Caso inválido: aaaaaaaabbbbbbbbcccccccccccccccccccccccccc"
+    },
+    {
+      "input": "aaaaaaaabbbbbbbbccccccccccccccccccccccccccc",
+      "expected": false,
+      "description": "Caso inválido: aaaaaaaabbbbbbbbccccccccccccccccccccccccccc"
+    },
+    {
+      "input": "aaaaaaaabbbbbbbbcccccccccccccccccccccccccccc",
+      "expected": false,
+      "description": "Caso inválido: aaaaaaaabbbbbbbbcccccccccccccccccccccccccccc"
+    },
+    {
+      "input": "aaaaaaaabbbbbbbbccccccccccccccccccccccccccccc",
+      "expected": false,
+      "description": "Caso inválido: aaaaaaaabbbbbbbbccccccccccccccccccccccccccccc"
+    },
+    {
+      "input": "aaaaaaaabbbbbbbbcccccccccccccccccccccccccccccc",
+      "expected": false,
+      "description": "Caso inválido: aaaaaaaabbbbbbbbcccccccccccccccccccccccccccccc"
+    },
+    {
+      "input": "aaaaaaaabbbbbbbbccccccccccccccccccccccccccccccc",
+      "expected": false,
+      "description": "Caso inválido: aaaaaaaabbbbbbbbccccccccccccccccccccccccccccccc"
+    },
+    {
+      "input": "aaaaaaaabbbbbbbbcccccccccccccccccccccccccccccccc",
+      "expected": false,
+      "description": "Caso inválido: aaaaaaaabbbbbbbbcccccccccccccccccccccccccccccccc"
+    },
+    {
+      "input": "aaaaaaaabbbbbbbbccccccccccccccccccccccccccccccccc",
+      "expected": false,
+      "description": "Caso inválido: aaaaaaaabbbbbbbbccccccccccccccccccccccccccccccccc"
+    },
+    {
+      "input": "aaaaaaaabbbbbbbbcccccccccccccccccccccccccccccccccc",
+      "expected": false,
+      "description": "Caso inválido: aaaaaaaabbbbbbbbcccccccccccccccccccccccccccccccccc"
+    },
+    {
+      "input": "aaaaaaaabbbbbbbbccccccccccccccccccccccccccccccccccc",
+      "expected": false,
+      "description": "Caso inválido: aaaaaaaabbbbbbbbccccccccccccccccccccccccccccccccccc"
+    },
+    {
+      "input": "aaaaaaaabbbbbbbbcccccccccccccccccccccccccccccccccccc",
+      "expected": false,
+      "description": "Caso inválido: aaaaaaaabbbbbbbbcccccccccccccccccccccccccccccccccccc"
+    },
+    {
+      "input": "aaaaaaaabbbbbbbbccccccccccccccccccccccccccccccccccccc",
+      "expected": false,
+      "description": "Caso inválido: aaaaaaaabbbbbbbbccccccccccccccccccccccccccccccccccccc"
+    },
+    {
+      "input": "aaaaaaaabbbbbbbbcccccccccccccccccccccccccccccccccccccc",
+      "expected": false,
+      "description": "Caso inválido: aaaaaaaabbbbbbbbcccccccccccccccccccccccccccccccccccccc"
+    },
+    {
+      "input": "aaaaaaaabbbbbbbbccccccccccccccccccccccccccccccccccccccc",
+      "expected": false,
+      "description": "Caso inválido: aaaaaaaabbbbbbbbccccccccccccccccccccccccccccccccccccccc"
+    },
+    {
+      "input": "aaaaaaaabbbbbbbbcccccccccccccccccccccccccccccccccccccccc",
+      "expected": false,
+      "description": "Caso inválido: aaaaaaaabbbbbbbbcccccccccccccccccccccccccccccccccccccccc"
+    },
+    {
+      "input": "aaaaaaaabbbbbbbbccccccccccccccccccccccccccccccccccccccccc",
+      "expected": false,
+      "description": "Caso inválido: aaaaaaaabbbbbbbbccccccccccccccccccccccccccccccccccccccccc"
+    },
+    {
+      "input": "aaaaaaaabbbbbbbbcccccccccccccccccccccccccccccccccccccccccc",
+      "expected": false,
+      "description": "Caso inválido: aaaaaaaabbbbbbbbcccccccccccccccccccccccccccccccccccccccccc"
+    },
+    {
+      "input": "aaaaaaaabbbbbbbbccccccccccccccccccccccccccccccccccccccccccc",
+      "expected": false,
+      "description": "Caso inválido: aaaaaaaabbbbbbbbccccccccccccccccccccccccccccccccccccccccccc"
+    },
+    {
+      "input": "aaaaaaaabbbbbbbbcccccccccccccccccccccccccccccccccccccccccccc",
+      "expected": false,
+      "description": "Caso inválido: aaaaaaaabbbbbbbbcccccccccccccccccccccccccccccccccccccccccccc"
+    },
+    {
+      "input": "aaaaaaaabbbbbbbbccccccccccccccccccccccccccccccccccccccccccccc",
+      "expected": false,
+      "description": "Caso inválido: aaaaaaaabbbbbbbbccccccccccccccccccccccccccccccccccccccccccccc"
+    },
+    {
+      "input": "aaaaaaaabbbbbbbbcccccccccccccccccccccccccccccccccccccccccccccc",
+      "expected": false,
+      "description": "Caso inválido: aaaaaaaabbbbbbbbcccccccccccccccccccccccccccccccccccccccccccccc"
+    },
+    {
+      "input": "aaaaaaaabbbbbbbbccccccccccccccccccccccccccccccccccccccccccccccc",
+      "expected": false,
+      "description": "Caso inválido: aaaaaaaabbbbbbbbccccccccccccccccccccccccccccccccccccccccccccccc"
+    },
+    {
+      "input": "aaaaaaaabbbbbbbbcccccccccccccccccccccccccccccccccccccccccccccccc",
+      "expected": false,
+      "description": "Caso inválido: aaaaaaaabbbbbbbbcccccccccccccccccccccccccccccccccccccccccccccccc"
+    },
+    {
+      "input": "aaaaaaaabbbbbbbbccccccccccccccccccccccccccccccccccccccccccccccccc",
+      "expected": false,
+      "description": "Caso inválido: aaaaaaaabbbbbbbbccccccccccccccccccccccccccccccccccccccccccccccccc"
+    },
+    {
+      "input": "aaaaaaaabbbbbbbbcccccccccccccccccccccccccccccccccccccccccccccccccc",
+      "expected": false,
+      "description": "Caso inválido: aaaaaaaabbbbbbbbcccccccccccccccccccccccccccccccccccccccccccccccccc"
+    },
+    {
+      "input": "aaaaaaaabbbbbbbbccccccccccccccccccccccccccccccccccccccccccccccccccc",
+      "expected": false,
+      "description": "Caso inválido: aaaaaaaabbbbbbbbccccccccccccccccccccccccccccccccccccccccccccccccccc"
+    },
+    {
+      "input": "aaaaaaaabbbbbbbbcccccccccccccccccccccccccccccccccccccccccccccccccccc",
+      "expected": false,
+      "description": "Caso inválido: aaaaaaaabbbbbbbbcccccccccccccccccccccccccccccccccccccccccccccccccccc"
+    },
+    {
+      "input": "aaaaaaaabbbbbbbbccccccccccccccccccccccccccccccccccccccccccccccccccccc",
+      "expected": false,
+      "description": "Caso inválido: aaaaaaaabbbbbbbbccccccccccccccccccccccccccccccccccccccccccccccccccccc"
+    },
+    {
+      "input": "aaaaaaaabbbbbbbbcccccccccccccccccccccccccccccccccccccccccccccccccccccc",
+      "expected": false,
+      "description": "Caso inválido: aaaaaaaabbbbbbbbcccccccccccccccccccccccccccccccccccccccccccccccccccccc"
+    },
+    {
+      "input": "aaaaaaaabbbbbbbbccccccccccccccccccccccccccccccccccccccccccccccccccccccc",
+      "expected": false,
+      "description": "Caso inválido: aaaaaaaabbbbbbbbccccccccccccccccccccccccccccccccccccccccccccccccccccccc"
+    },
+    {
+      "input": "aaaaaaaabbbbbbbbcccccccccccccccccccccccccccccccccccccccccccccccccccccccc",
+      "expected": false,
+      "description": "Caso inválido: aaaaaaaabbbbbbbbcccccccccccccccccccccccccccccccccccccccccccccccccccccccc"
+    },
+    {
+      "input": "aaaaaaaabbbbbbbbccccccccccccccccccccccccccccccccccccccccccccccccccccccccc",
+      "expected": false,
+      "description": "Caso inválido: aaaaaaaabbbbbbbbccccccccccccccccccccccccccccccccccccccccccccccccccccccccc"
+    },
+    {
+      "input": "aaaaaaaabbbbbbbbcccccccccccccccccccccccccccccccccccccccccccccccccccccccccc",
+      "expected": false,
+      "description": "Caso inválido: aaaaaaaabbbbbbbbcccccccccccccccccccccccccccccccccccccccccccccccccccccccccc"
+    },
+    {
+      "input": "aaaaaaaabbbbbbbbccccccccccccccccccccccccccccccccccccccccccccccccccccccccccc",
+      "expected": false,
+      "description": "Caso inválido: aaaaaaaabbbbbbbbccccccccccccccccccccccccccccccccccccccccccccccccccccccccccc"
+    },
+    {
+      "input": "aaaaaaaabbbbbbbbcccccccccccccccccccccccccccccccccccccccccccccccccccccccccccc",
+      "expected": false,
+      "description": "Caso inválido: aaaaaaaabbbbbbbbcccccccccccccccccccccccccccccccccccccccccccccccccccccccccccc"
+    },
+    {
+      "input": "aaaaaaaabbbbbbbbccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccc",
+      "expected": false,
+      "description": "Caso inválido: aaaaaaaabbbbbbbbccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccc"
+    },
+    {
+      "input": "aaaaaaaabbbbbbbbcccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccc",
+      "expected": false,
+      "description": "Caso inválido: aaaaaaaabbbbbbbbcccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccc"
+    },
+    {
+      "input": "aaaaaaaabbbbbbbbccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccc",
+      "expected": false,
+      "description": "Caso inválido: aaaaaaaabbbbbbbbccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccc"
+    },
+    {
+      "input": "aaaaaaaabbbbbbbbcccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccc",
+      "expected": false,
+      "description": "Caso inválido: aaaaaaaabbbbbbbbcccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccc"
+    },
+    {
+      "input": "aaaaaaaabbbbbbbbccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccc",
+      "expected": false,
+      "description": "Caso inválido: aaaaaaaabbbbbbbbccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccc"
+    },
+    {
+      "input": "aaaaaaaabbbbbbbbcccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccc",
+      "expected": false,
+      "description": "Caso inválido: aaaaaaaabbbbbbbbcccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccc"
+    },
+    {
+      "input": "aaaaaaaabbbbbbbbccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccc",
+      "expected": false,
+      "description": "Caso inválido: aaaaaaaabbbbbbbbccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccc"
+    },
+    {
+      "input": "aaaaaaaabbbbbbbbcccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccc",
+      "expected": false,
+      "description": "Caso inválido: aaaaaaaabbbbbbbbcccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccc"
+    },
+    {
+      "input": "aaaaaaaabbbbbbbbccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccc",
+      "expected": false,
+      "description": "Caso inválido: aaaaaaaabbbbbbbbccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccc"
+    },
+    {
+      "input": "aaaaaaaabbbbbbbbcccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccc",
+      "expected": false,
+      "description": "Caso inválido: aaaaaaaabbbbbbbbcccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccc"
+    },
+    {
+      "input": "aaaaaaaabbbbbbbbccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccc",
+      "expected": false,
+      "description": "Caso inválido: aaaaaaaabbbbbbbbccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccc"
+    },
+    {
+      "input": "aaaaaaaabbbbbbbbcccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccc",
+      "expected": false,
+      "description": "Caso inválido: aaaaaaaabbbbbbbbcccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccc"
+    },
+    {
+      "input": "aaaaaaaabbbbbbbbccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccc",
+      "expected": false,
+      "description": "Caso inválido: aaaaaaaabbbbbbbbccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccc"
+    },
+    {
+      "input": "aaaaaaaabbbbbbbbcccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccc",
+      "expected": false,
+      "description": "Caso inválido: aaaaaaaabbbbbbbbcccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccc"
+    },
+    {
+      "input": "aaaaaaaabbbbbbbbccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccc",
+      "expected": false,
+      "description": "Caso inválido: aaaaaaaabbbbbbbbccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccc"
+    },
+    {
+      "input": "aaaaaaaabbbbbbbbcccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccc",
+      "expected": false,
+      "description": "Caso inválido: aaaaaaaabbbbbbbbcccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccc"
+    },
+    {
+      "input": "aaaaaaaabbbbbbbbccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccc",
+      "expected": false,
+      "description": "Caso inválido: aaaaaaaabbbbbbbbccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccc"
+    },
+    {
+      "input": "aaaaaaaabbbbbbbbcccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccc",
+      "expected": false,
+      "description": "Caso inválido: aaaaaaaabbbbbbbbcccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccc"
+    },
+    {
+      "input": "aaaaaaaabbbbbbbbccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccc",
+      "expected": false,
+      "description": "Caso inválido: aaaaaaaabbbbbbbbccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccc"
+    },
+    {
+      "input": "aaaaaaaabbbbbbbbcccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccc",
+      "expected": false,
+      "description": "Caso inválido: aaaaaaaabbbbbbbbcccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccc"
+    },
+    {
+      "input": "aaaaaaaabbbbbbbbccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccc",
+      "expected": false,
+      "description": "Caso inválido: aaaaaaaabbbbbbbbccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccc"
+    },
+    {
+      "input": "aaaaaaaabbbbbbbbcccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccc",
+      "expected": false,
+      "description": "Caso inválido: aaaaaaaabbbbbbbbcccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccc"
+    },
+    {
+      "input": "aaaaaaaabbbbbbbbccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccc",
+      "expected": false,
+      "description": "Caso inválido: aaaaaaaabbbbbbbbccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccc"
+    },
+    {
+      "input": "aaaaaaaabbbbbbbbcccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccc",
+      "expected": false,
+      "description": "Caso inválido: aaaaaaaabbbbbbbbcccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccc"
+    },
+    {
+      "input": "aaaaaaaabbbbbbbbccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccc",
+      "expected": false,
+      "description": "Caso inválido: aaaaaaaabbbbbbbbccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccc"
+    },
+    {
+      "input": "aaaaaaaabbbbbbbbcccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccc",
+      "expected": false,
+      "description": "Caso inválido: aaaaaaaabbbbbbbbcccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccc"
+    },
+    {
+      "input": "aaaaaaaabbbbbbbbccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccc",
+      "expected": false,
+      "description": "Caso inválido: aaaaaaaabbbbbbbbccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccc"
+    },
+    {
+      "input": "aaaaaaaabbbbbbbbcccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccc",
+      "expected": false,
+      "description": "Caso inválido: aaaaaaaabbbbbbbbcccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccc"
+    },
+    {
+      "input": "aaaaaaaabbbbbbbbccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccc",
+      "expected": false,
+      "description": "Caso inválido: aaaaaaaabbbbbbbbccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccc"
+    },
+    {
+      "input": "aaaaaaaabbbbbbbbcccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccc",
+      "expected": false,
+      "description": "Caso inválido: aaaaaaaabbbbbbbbcccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccc"
+    },
+    {
+      "input": "aaaaaaaabbbbbbbbccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccc",
+      "expected": false,
+      "description": "Caso inválido: aaaaaaaabbbbbbbbccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccc"
+    },
+    {
+      "input": "aaaaaaaabbbbbbbbcccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccc",
+      "expected": false,
+      "description": "Caso inválido: aaaaaaaabbbbbbbbcccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccc"
+    },
+    {
+      "input": "aaaaaaaabbbbbbbbccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccc",
+      "expected": false,
+      "description": "Caso inválido: aaaaaaaabbbbbbbbccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccc"
+    },
+    {
+      "input": "aaaaaaaabbbbbbbbcccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccc",
+      "expected": false,
+      "description": "Caso inválido: aaaaaaaabbbbbbbbcccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccc"
+    },
+    {
+      "input": "aaaaaaaabbbbbbbbccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccc",
+      "expected": false,
+      "description": "Caso inválido: aaaaaaaabbbbbbbbccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccc"
+    },
+    {
+      "input": "aaaaaaaabbbbbbbbcccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccc",
+      "expected": false,
+      "description": "Caso inválido: aaaaaaaabbbbbbbbcccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccc"
+    },
+    {
+      "input": "aaaaaaaabbbbbbbbccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccc",
+      "expected": false,
+      "description": "Caso inválido: aaaaaaaabbbbbbbbccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccc"
+    },
+    {
+      "input": "aaaaaaaabbbbbbbbcccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccc",
+      "expected": false,
+      "description": "Caso inválido: aaaaaaaabbbbbbbbcccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccc"
+    },
+    {
+      "input": "aaaaaaaabbbbbbbbccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccc",
+      "expected": false,
+      "description": "Caso inválido: aaaaaaaabbbbbbbbccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccc"
+    },
+    {
+      "input": "aaaaaaaabbbbbbbbcccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccc",
+      "expected": false,
+      "description": "Caso inválido: aaaaaaaabbbbbbbbcccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccc"
+    },
+    {
+      "input": "aabbcd",
+      "expected": false,
+      "description": "Caso inválido: aabbcd"
+    },
+    {
+      "input": "aabbc1",
+      "expected": false,
+      "description": "Caso inválido: aabbc1"
+    },
+    {
+      "input": "aabbcx",
+      "expected": false,
+      "description": "Caso inválido: aabbcx"
+    },
+    {
+      "input": "aabbc ",
+      "expected": false,
+      "description": "Caso inválido: aabbc "
+    },
+    {
+      "input": "aabbc\n",
+      "expected": false,
+      "description": "Caso inválido: aabbc\n"
+    },
+    {
+      "input": "aabbc\t",
+      "expected": false,
+      "description": "Caso inválido: aabbc\t"
+    },
+    {
+      "input": "aabbc\r",
+      "expected": false,
+      "description": "Caso inválido: aabbc\r"
+    },
+    {
+      "input": "aabbc\u0000",
+      "expected": false,
+      "description": "Caso inválido: aabbc\u0000"
+    },
+    {
+      "input": "aabbc\b",
+      "expected": false,
+      "description": "Caso inválido: aabbc\b"
+    },
+    {
+      "input": "aabbc\f",
+      "expected": false,
+      "description": "Caso inválido: aabbc\f"
+    },
+    {
+      "input": "aabbc\u000b",
+      "expected": false,
+      "description": "Caso inválido: aabbc\u000b"
+    },
+    {
+      "input": "aabbc\u0007",
+      "expected": false,
+      "description": "Caso inválido: aabbc\u0007"
+    },
+    {
+      "input": "aabbc\\e",
+      "expected": false,
+      "description": "Caso inválido: aabbc\\e"
+    },
+    {
+      "input": "aabbc\u001b",
+      "expected": false,
+      "description": "Caso inválido: aabbc\u001b"
+    },
+    {
+      "input": "aabbc\u001b[",
+      "expected": false,
+      "description": "Caso inválido: aabbc\u001b["
+    },
+    {
+      "input": "aabbc\u001b[0m",
+      "expected": false,
+      "description": "Caso inválido: aabbc\u001b[0m"
+    },
+    {
+      "input": "aabbc\u001b[1m",
+      "expected": false,
+      "description": "Caso inválido: aabbc\u001b[1m"
+    },
+    {
+      "input": "aabbc\u001b[31m",
+      "expected": false,
+      "description": "Caso inválido: aabbc\u001b[31m"
+    },
+    {
+      "input": "aabbc\u001b[32m",
+      "expected": false,
+      "description": "Caso inválido: aabbc\u001b[32m"
+    },
+    {
+      "input": "aabbc\u001b[33m",
+      "expected": false,
+      "description": "Caso inválido: aabbc\u001b[33m"
+    },
+    {
+      "input": "aabbc\u001b[34m",
+      "expected": false,
+      "description": "Caso inválido: aabbc\u001b[34m"
+    },
+    {
+      "input": "aabbc\u001b[35m",
+      "expected": false,
+      "description": "Caso inválido: aabbc\u001b[35m"
+    },
+    {
+      "input": "aabbc\u001b[36m",
+      "expected": false,
+      "description": "Caso inválido: aabbc\u001b[36m"
+    },
+    {
+      "input": "aabbc\u001b[37m",
+      "expected": false,
+      "description": "Caso inválido: aabbc\u001b[37m"
+    },
+    {
+      "input": "aabbc\u001b[40m",
+      "expected": false,
+      "description": "Caso inválido: aabbc\u001b[40m"
+    },
+    {
+      "input": "aabbc\u001b[41m",
+      "expected": false,
+      "description": "Caso inválido: aabbc\u001b[41m"
+    },
+    {
+      "input": "aabbc\u001b[42m",
+      "expected": false,
+      "description": "Caso inválido: aabbc\u001b[42m"
+    },
+    {
+      "input": "aabbc\u001b[43m",
+      "expected": false,
+      "description": "Caso inválido: aabbc\u001b[43m"
+    },
+    {
+      "input": "aabbc\u001b[44m",
+      "expected": false,
+      "description": "Caso inválido: aabbc\u001b[44m"
+    },
+    {
+      "input": "aabbc\u001b[45m",
+      "expected": false,
+      "description": "Caso inválido: aabbc\u001b[45m"
+    },
+    {
+      "input": "aabbc\u001b[46m",
+      "expected": false,
+      "description": "Caso inválido: aabbc\u001b[46m"
+    },
+    {
+      "input": "aabbc\u001b[47m",
+      "expected": false,
+      "description": "Caso inválido: aabbc\u001b[47m"
+    },
+    {
+      "input": "aabbc\u001b[48m",
+      "expected": false,
+      "description": "Caso inválido: aabbc\u001b[48m"
+    },
+    {
+      "input": "aabbc\u001b[49m",
+      "expected": false,
+      "description": "Caso inválido: aabbc\u001b[49m"
+    },
+    {
+      "input": "aabbc\u001b[90m",
+      "expected": false,
+      "description": "Caso inválido: aabbc\u001b[90m"
+    },
+    {
+      "input": "aabbc\u001b[91m",
+      "expected": false,
+      "description": "Caso inválido: aabbc\u001b[91m"
+    },
+    {
+      "input": "aabbc\u001b[92m",
+      "expected": false,
+      "description": "Caso inválido: aabbc\u001b[92m"
+    },
+    {
+      "input": "aabbc\u001b[93m",
+      "expected": false,
+      "description": "Caso inválido: aabbc\u001b[93m"
+    },
+    {
+      "input": "aabbc\u001b[94m",
+      "expected": false,
+      "description": "Caso inválido: aabbc\u001b[94m"
+    },
+    {
+      "input": "aabbc\u001b[95m",
+      "expected": false,
+      "description": "Caso inválido: aabbc\u001b[95m"
+    },
+    {
+      "input": "aabbc\u001b[96m",
+      "expected": false,
+      "description": "Caso inválido: aabbc\u001b[96m"
+    },
+    {
+      "input": "aabbc\u001b[97m",
+      "expected": false,
+      "description": "Caso inválido: aabbc\u001b[97m"
+    },
+    {
+      "input": "aabbc\u001b[100m",
+      "expected": false,
+      "description": "Caso inválido: aabbc\u001b[100m"
+    },
+    {
+      "input": "aabbc\u001b[101m",
+      "expected": false,
+      "description": "Caso inválido: aabbc\u001b[101m"
+    },
+    {
+      "input": "aabbc\u001b[102m",
+      "expected": false,
+      "description": "Caso inválido: aabbc\u001b[102m"
+    },
+    {
+      "input": "aabbc\u001b[103m",
+      "expected": false,
+      "description": "Caso inválido: aabbc\u001b[103m"
+    },
+    {
+      "input": "aabbc\u001b[104m",
+      "expected": false,
+      "description": "Caso inválido: aabbc\u001b[104m"
+    },
+    {
+      "input": "aabbc\u001b[105m",
+      "expected": false,
+      "description": "Caso inválido: aabbc\u001b[105m"
+    },
+    {
+      "input": "aabbc\u001b[106m",
+      "expected": false,
+      "description": "Caso inválido: aabbc\u001b[106m"
+    },
+    {
+      "input": "aabbc\u001b[107m",
+      "expected": false,
+      "description": "Caso inválido: aabbc\u001b[107m"
+    }
+  ]
+}
