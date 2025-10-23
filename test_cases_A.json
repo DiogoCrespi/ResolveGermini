@@ -1,0 +1,86 @@
+{
+  "language": "{ a^n b^m c^(2n) d^m | n > 0 e m > 0 }",
+  "test_cases": [
+    {
+      "input": "abccd",
+      "expected": true,
+      "reason": "n=1, m=1 - caso mínimo válido"
+    },
+    {
+      "input": "abbccdd",
+      "expected": true,
+      "reason": "n=1, m=2 - mais d's que c's"
+    },
+    {
+      "input": "aabbccccdd",
+      "expected": true,
+      "reason": "n=2, m=1 - dois a's, quatro c's"
+    },
+    {
+      "input": "aabbbccccdddd",
+      "expected": true,
+      "reason": "n=2, m=3 - balanceado corretamente"
+    },
+    {
+      "input": "aaabbccccccdddd",
+      "expected": true,
+      "reason": "n=3, m=2 - três a's, seis c's"
+    },
+    {
+      "input": "aaaabbbbbccccccccdddddd",
+      "expected": true,
+      "reason": "n=4, m=5 - caso maior"
+    },
+    {
+      "input": "abccdd",
+      "expected": false,
+      "reason": "n=1 mas d's desbalanceados (m seria 2, mas só temos 1 'b')"
+    },
+    {
+      "input": "abcd",
+      "expected": false,
+      "reason": "Falta um 'c' - precisa de 2 c's para n=1"
+    },
+    {
+      "input": "aabccccd",
+      "expected": false,
+      "reason": "n=2 mas falta um 'c' e 'd's desbalanceados"
+    },
+    {
+      "input": "aabbccdd",
+      "expected": false,
+      "reason": "n=2 mas só tem 2 c's (deveria ter 4)"
+    },
+    {
+      "input": "abbbccd",
+      "expected": false,
+      "reason": "m=3 mas só tem 1 'd'"
+    },
+    {
+      "input": "bccd",
+      "expected": false,
+      "reason": "Falta 'a' - n deve ser > 0"
+    },
+    {
+      "input": "accd",
+      "expected": false,
+      "reason": "Falta 'b' - m deve ser > 0"
+    },
+    {
+      "input": "abcc",
+      "expected": false,
+      "reason": "Falta 'd' - m deve ser > 0"
+    },
+    {
+      "input": "abbdccdd",
+      "expected": false,
+      "reason": "Ordem incorreta - d antes de c"
+    },
+    {
+      "input": "",
+      "expected": false,
+      "reason": "String vazia - n e m devem ser > 0"
+    }
+  ]
+}
+

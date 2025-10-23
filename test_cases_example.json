@@ -1,0 +1,56 @@
+{
+  "language": "{ a^n b^m c^(2n) d^m | n > 0 e m > 0 }",
+  "test_cases": [
+    {
+      "input": "abccd",
+      "expected": true,
+      "reason": "n=1, m=1: a^1 b^1 c^2 d^1"
+    },
+    {
+      "input": "abbccdd",
+      "expected": true,
+      "reason": "n=1, m=2: a^1 b^2 c^2 d^2"
+    },
+    {
+      "input": "aabbccccdd",
+      "expected": true,
+      "reason": "n=2, m=1: a^2 b^1 c^4 d^1"
+    },
+    {
+      "input": "aabbbbccccdddd",
+      "expected": true,
+      "reason": "n=2, m=3: a^2 b^3 c^4 d^3"
+    },
+    {
+      "input": "aaabbbccccccdddd",
+      "expected": true,
+      "reason": "n=3, m=3: a^3 b^3 c^6 d^3"
+    },
+    {
+      "input": "abccdd",
+      "expected": false,
+      "reason": "Desbalanceado: b=1 mas d=2"
+    },
+    {
+      "input": "abcd",
+      "expected": false,
+      "reason": "Falta um 'c': tem c^1 mas deveria ter c^2"
+    },
+    {
+      "input": "aabbccdd",
+      "expected": false,
+      "reason": "n=2 mas tem c^2 em vez de c^4"
+    },
+    {
+      "input": "abbcccdd",
+      "expected": false,
+      "reason": "n=1 mas tem c^3 em vez de c^2"
+    },
+    {
+      "input": "bccdd",
+      "expected": false,
+      "reason": "Falta 'a' no início (n deve ser > 0)"
+    }
+  ]
+}
+

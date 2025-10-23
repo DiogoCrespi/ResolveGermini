@@ -10,7 +10,7 @@ import time
 
 from .config import INPUT_DIR_DEFAULT, OUTPUT_DIR_DEFAULT, MAX_QUEST_PER_BLOCK, AI_MODEL, MAX_PARALLEL_WORKERS, ENABLE_DESKTOP_COPY
 from .extractor import extract_text
-from .ai_client import extract_with_ai, merge_blocks, segment_text_into_questions, validate_grammars
+from .ai_client import extract_with_ai, merge_blocks, segment_text_into_questions, validate_grammars, generate_turing_tests
 from .jff_converter import write_mealy_jff_file, write_fa_jff_file, write_pda_jff_file, write_turing_jff_file
 
 
@@ -289,6 +289,36 @@ def _write_grammar_corrections(stem: str, out_dir: Path, corrections: List[Dict[
 	txt_path.write_text("\n".join(lines), encoding="utf-8")
 
 
+def _write_turing_tests(stem: str, out_dir: Path, tests: List[Dict[str, Any]], solved_subdir: str) -> None:
+	"""Escreve arquivo com testes para máquinas de Turing"""
+	lines: List[str] = []
+	lines.append("=== TESTES PARA MÁQUINAS DE TURING ===\n")
+	
+	for test in tests:
+		qid = test.get("id", "")
+		enunciado = test.get("enunciado", "")
+		testes_corretos = test.get("testes_corretos", [])
+		testes_errados = test.get("testes_errados", [])
+		
+		lines.append(f"[{qid}] {enunciado}")
+		lines.append("")
+		lines.append("✅ Testes CORRETOS (devem ser aceitos):")
+		for i, teste in enumerate(testes_corretos, 1):
+			lines.append(f"  {i}. {teste}")
+		lines.append("")
+		lines.append("❌ Testes ERRADOS (devem ser rejeitados):")
+		for i, teste in enumerate(testes_errados, 1):
+			lines.append(f"  {i}. {teste}")
+		lines.append("")
+		lines.append("-" * 50)
+		lines.append("")
+	
+	solved_dir = out_dir / solved_subdir
+	solved_dir.mkdir(parents=True, exist_ok=True)
+	txt_path = solved_dir / f"{stem}_testes_turing.txt"
+	txt_path.write_text("\n".join(lines), encoding="utf-8")
+
+
 def _process_external_files_for_validation(inp: Path, out_dir: Path, solved_subdir: str) -> None:
 	"""Processa arquivos externos (.jff, *_correcoes_gramaticas.txt) para validação/correção"""
 	
@@ -528,6 +558,15 @@ def process_file(file_path: Path, out_dir: Path, jff_type: str = "fa", refresh: 
 			print(f"Correções salvas em: {out_dir / solved_subdir / f'{file_path.stem}_correcoes_gramaticas.txt'}")
 		else:
 			print("Nenhuma gramática encontrada para validação.")
+		
+		# 6) Geração de testes para Máquinas de Turing
+		print("\nGerando testes para Máquinas de Turing...")
+		turing_tests = generate_turing_tests(processed_questions)
+		if turing_tests.get("questoes"):
+			_write_turing_tests(file_path.stem, out_dir, turing_tests["questoes"], solved_subdir)
+			print(f"✅ Testes de Turing salvos em: {out_dir / solved_subdir / f'{file_path.stem}_testes_turing.txt'}")
+		else:
+			print("ℹ️  Nenhuma questão de Turing encontrada para geração de testes.")
 
 
 def main() -> None:
