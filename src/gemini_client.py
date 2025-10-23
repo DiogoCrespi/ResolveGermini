@@ -401,6 +401,87 @@ def validate_grammars(questions: List[Dict[str, Any]]) -> Dict[str, Any]:
 	return _extract_json_from_text(text)
 
 
+SYSTEM_PROMPT_TURING_TESTS = (
+	"[PERSONA E OBJETIVO]\n"
+	"Você é um especialista em Máquinas de Turing e Teoria da Computação. Seu objetivo é gerar testes (strings) para validar máquinas de Turing.\n\n"
+	"[INSTRUÇÕES]\n"
+	"Para cada questão de Máquina de Turing fornecida, você deve gerar:\n"
+	"- 2 testes CORRETOS: strings que DEVEM ser aceitas pela máquina\n"
+	"- 3 testes ERRADOS: strings que NÃO devem ser aceitas pela máquina\n\n"
+	"EXEMPLO: Para a linguagem L = {a^n b^n c^n | n > 0}:\n"
+	"- Testes corretos: 'abc', 'aabbcc'\n"
+	"- Testes errados: 'aabbc', 'abcc', 'aabbbc'\n\n"
+	"[FORMATO DE RESPOSTA]\n"
+	"Retorne EM JSON VÁLIDO: {\n"
+	"  \"questoes\": [\n"
+	"    {\n"
+	"      \"id\": \"Q1\",\n"
+	"      \"enunciado\": \"...\",\n"
+	"      \"testes_corretos\": [\"abc\", \"aabbcc\"],\n"
+	"      \"testes_errados\": [\"aabbc\", \"abcc\", \"aabbbc\"]\n"
+	"    }\n"
+	"  ]\n"
+	"}\n\n"
+	"REGRAS:\n"
+	"- SEM TEXTO fora do JSON\n"
+	"- Sempre exatamente 3 testes corretos e 3 testes errados\n"
+	"- Os testes devem ser strings simples (sem espaços, apenas letras/dígitos)\n"
+	"- Os testes devem cobrir casos típicos e casos limite da linguagem\n"
+	"- NÃO repita informações já dadas no enunciado"
+)
+
+
+@sleep_and_retry
+@limits(calls=RATE_LIMIT_PER_MINUTE, period=60)
+@retry(wait=wait_exponential(multiplier=1, min=1, max=30), stop=stop_after_attempt(5))
+def generate_turing_tests(questions: List[Dict[str, Any]]) -> Dict[str, Any]:
+	"""Gera testes (2 corretos, 3 errados) para máquinas de Turing"""
+	
+	# Filtrar apenas questões de Máquina de Turing
+	turing_questions = []
+	for q in questions:
+		if q.get("turing") and q.get("turing").get("type") == "turing":
+			turing_questions.append(q)
+	
+	if not turing_questions:
+		return {"questoes": []}
+	
+	# Montar prompt com todas as questões de Turing
+	questions_text = ""
+	for q in turing_questions:
+		questions_text += f"ID: {q.get('id', '')}\n"
+		questions_text += f"Enunciado: {q.get('enunciado', '')}\n"
+		questions_text += f"Contexto: {q.get('contexto', '')}\n"
+		questions_text += f"Explicação: {q.get('explicacao', '')}\n\n"
+	
+	prompt = f"{SYSTEM_PROMPT_TURING_TESTS}\n\nQUESTÕES DE TURING:\n\n{questions_text}"
+	
+	payload = {
+		"contents": [
+			{
+				"parts": [
+					{"text": prompt}
+				]
+			}
+		]
+	}
+	headers = {
+		"Content-Type": "application/json",
+		"X-goog-api-key": GEMINI_API_KEY,
+	}
+	resp = requests.post(API_URL, headers=headers, data=json.dumps(payload), timeout=120)
+	resp.raise_for_status()
+	data = resp.json()
+	candidates = data.get("candidates", [])
+	if not candidates:
+		return {"questoes": []}
+	parts = candidates[0].get("content", {}).get("parts", [])
+	if not parts or "text" not in parts[0]:
+		return {"questoes": []}
+	text = parts[0]["text"]
+	return _extract_json_from_text(text)
+
+
 def merge_blocks(blocks_results: List[Dict[str, Any]]) -> Dict[str, Any]:
 	merged: Dict[str, Any] = {"questoes": []}
 	for br in blocks_results:

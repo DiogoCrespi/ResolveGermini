@@ -1,0 +1,344 @@
+<?xml version="1.0" encoding="UTF-8" standalone="no"?><!--Created with JFLAP 7.1.--><structure>
+	<type>turing</type>
+	<automaton>
+		<!--The list of states.-->
+		<state id="0" name="q0">
+			<x>100.0</x>
+			<y>200.0</y>
+			<initial/>
+			<label>Procura 'a'</label>
+		</state>
+		<state id="1" name="q1">
+			<x>250.0</x>
+			<y>100.0</y>
+			<label>Achou 'a', procura 1o 'c'</label>
+		</state>
+		<state id="2" name="q2">
+			<x>400.0</x>
+			<y>100.0</y>
+			<label>Marcou 1o 'c', procura 2o 'c'</label>
+		</state>
+		<state id="3" name="q3">
+			<x>550.0</x>
+			<y>100.0</y>
+			<label>Marcou 2o 'c', volta para X</label>
+		</state>
+		<state id="9" name="q_scan_b"> <!-- NOVO ESTADO -->
+			<x>50.0</x>
+			<y>300.0</y>
+			<label>Reposiciona para inicio dos 'b'</label>
+		</state>
+		<state id="4" name="q4">
+			<x>250.0</x>
+			<y>300.0</y>
+			<label>Inicio Fase 2, procura 'b'</label>
+		</state>
+		<state id="5" name="q5">
+			<x>400.0</x>
+			<y>300.0</y>
+			<label>Achou 'b', procura 'd'</label>
+		</state>
+		<state id="6" name="q6">
+			<x>550.0</x>
+			<y>300.0</y>
+			<label>Marcou 'd', volta para Z</label>
+		</state>
+		<state id="7" name="q7">
+			<x>400.0</x>
+			<y>400.0</y>
+			<label>Fim dos 'b's, verifica Ys e Ws</label>
+		</state>
+		<state id="8" name="q8">
+			<x>550.0</x>
+			<y>400.0</y>
+			<label>Aceita</label>
+			<final/>
+		</state>
+		<!--The list of transitions.-->
+
+		<!-- Fase 1: a^n vs c^2n -->
+		<transition> <!-- Marca 'a' -> X, vai para a direita -->
+			<from>0</from>
+			<to>1</to>
+			<read>a</read>
+			<write>X</write>
+			<move>R</move>
+		</transition>
+		<transition> <!-- Move R sobre 'a' -->
+			<from>1</from>
+			<to>1</to>
+			<read>a</read>
+			<write>a</write>
+			<move>R</move>
+		</transition>
+		<transition> <!-- Move R sobre 'b' -->
+			<from>1</from>
+			<to>1</to>
+			<read>b</read>
+			<write>b</write>
+			<move>R</move>
+		</transition>
+		<transition> <!-- Move R sobre 'Z' (marcador de b) -->
+			<from>1</from>
+			<to>1</to>
+			<read>Z</read>
+			<write>Z</write>
+			<move>R</move>
+		</transition>
+		<transition> <!-- Move R sobre 'Y' (marcador de c) -->
+			<from>1</from>
+			<to>1</to>
+			<read>Y</read>
+			<write>Y</write>
+			<move>R</move>
+		</transition>
+		<transition> <!-- Encontra e marca 1o 'c' -> Y, vai para a direita -->
+			<from>1</from>
+			<to>2</to>
+			<read>c</read>
+			<write>Y</write>
+			<move>R</move>
+		</transition>
+		<transition> <!-- Move R sobre 'Y' -->
+			<from>2</from>
+			<to>2</to>
+			<read>Y</read>
+			<write>Y</write>
+			<move>R</move>
+		</transition>
+		<transition> <!-- Move R sobre 'd' -->
+			<from>2</from>
+			<to>2</to>
+			<read>d</read>
+			<write>d</write>
+			<move>R</move>
+		</transition>
+		<transition> <!-- Move R sobre 'W' (d marcado) -->
+			<from>2</from>
+			<to>2</to>
+			<read>W</read>
+			<write>W</write>
+			<move>R</move>
+		</transition>
+		<transition> <!-- Encontra e marca 2o 'c' -> Y, vai para a esquerda -->
+			<from>2</from>
+			<to>3</to>
+			<read>c</read>
+			<write>Y</write>
+			<move>L</move>
+		</transition>
+		<transition> <!-- Move L sobre 'Y' -->
+			<from>3</from>
+			<to>3</to>
+			<read>Y</read>
+			<write>Y</write>
+			<move>L</move>
+		</transition>
+		<transition> <!-- Move L sobre 'c' -->
+			<from>3</from>
+			<to>3</to>
+			<read>c</read>
+			<write>c</write>
+			<move>L</move>
+		</transition>
+		<transition> <!-- Move L sobre 'Z' (marcador de b) -->
+			<from>3</from>
+			<to>3</to>
+			<read>Z</read>
+			<write>Z</write>
+			<move>L</move>
+		</transition>
+		<transition> <!-- Move L sobre 'b' -->
+			<from>3</from>
+			<to>3</to>
+			<read>b</read>
+			<write>b</write>
+			<move>L</move>
+		</transition>
+		<transition> <!-- Move L sobre 'a' -->
+			<from>3</from>
+			<to>3</to>
+			<read>a</read>
+			<write>a</write>
+			<move>L</move>
+		</transition>
+		<transition> <!-- Encontra X, move R para voltar a procurar 'a' -->
+			<from>3</from>
+			<to>0</to>
+			<read>X</read>
+			<write>X</write>
+			<move>R</move>
+		</transition>
+
+		<!-- Transição para Fase 2 (Reposição) -->
+		<transition> <!-- Se q0 não encontra 'a', mas encontra 'b', inicia reposicionamento -->
+			<from>0</from>
+			<to>9</to> <!-- Vai para q_scan_b -->
+			<read>b</read>
+			<write>b</write>
+			<move>L</move> <!-- Começa a mover para esquerda -->
+		</transition>
+		<transition> <!-- q_scan_b: Move L sobre 'b' -->
+			<from>9</from>
+			<to>9</to>
+			<read>b</read>
+			<write>b</write>
+			<move>L</move>
+		</transition>
+        <transition> <!-- q_scan_b: Move L sobre 'Z' (b marcado) -->
+             <from>9</from>
+             <to>9</to>
+             <read>Z</read>
+             <write>Z</write>
+             <move>L</move>
+         </transition>
+		<transition> <!-- q_scan_b: Move L sobre 'a' -->
+			<from>9</from>
+			<to>9</to>
+			<read>a</read>
+			<write>a</write>
+			<move>L</move>
+		</transition>
+		<transition> <!-- q_scan_b: Encontrou X (fim dos 'a's), move R para o primeiro 'b' e vai para q4 -->
+			<from>9</from>
+			<to>4</to>
+			<read>X</read>
+			<write>X</write>
+			<move>R</move>
+		</transition>
+
+		<!-- Fase 2: b^m vs d^m -->
+		<transition> <!-- Pula 'b's ja marcados (Z) -->
+			<from>4</from>
+			<to>4</to>
+			<read>Z</read>
+			<write>Z</write>
+			<move>R</move>
+		</transition>
+		<transition> <!-- Pula 'Y's (marcadores c) enquanto procura b/Z -->
+			<from>4</from>
+			<to>4</to>
+			<read>Y</read>
+			<write>Y</write>
+			<move>R</move>
+		</transition>
+		<transition> <!-- Marca 'b' -> Z, vai para a direita procurar 'd' -->
+			<from>4</from>
+			<to>5</to>
+			<read>b</read>
+			<write>Z</write>
+			<move>R</move>
+		</transition>
+		<transition> <!-- Move R sobre 'b' -->
+			<from>5</from>
+			<to>5</to>
+			<read>b</read>
+			<write>b</write>
+			<move>R</move>
+		</transition>
+		<transition> <!-- Move R sobre 'Z' (b marcado) -->
+			<from>5</from>
+			<to>5</to>
+			<read>Z</read>
+			<write>Z</write>
+			<move>R</move>
+		</transition>
+		<transition> <!-- Move R sobre 'Y' (marcador de c) -->
+			<from>5</from>
+			<to>5</to>
+			<read>Y</read>
+			<write>Y</write>
+			<move>R</move>
+		</transition>
+		<transition> <!-- Move R sobre 'W' (marcador de d) -->
+			<from>5</from>
+			<to>5</to>
+			<read>W</read>
+			<write>W</write>
+			<move>R</move>
+		</transition>
+		<transition> <!-- Encontra e marca 'd' -> W, vai para a esquerda -->
+			<from>5</from>
+			<to>6</to>
+			<read>d</read>
+			<write>W</write>
+			<move>L</move>
+		</transition>
+		<transition> <!-- Move L sobre 'W' -->
+			<from>6</from>
+			<to>6</to>
+			<read>W</read>
+			<write>W</write>
+			<move>L</move>
+		</transition>
+		<transition> <!-- Move L sobre 'd' -->
+			<from>6</from>
+			<to>6</to>
+			<read>d</read>
+			<write>d</write>
+			<move>L</move>
+		</transition>
+		<transition> <!-- Move L sobre 'Y' -->
+			<from>6</from>
+			<to>6</to>
+			<read>Y</read>
+			<write>Y</write>
+			<move>L</move>
+		</transition>
+		<transition> <!-- Move L sobre 'b' -->
+			<from>6</from>
+			<to>6</to>
+			<read>b</read>
+			<write>b</write>
+			<move>L</move>
+		</transition>
+		<transition> <!-- Encontra Z (b marcado), move R para voltar a procurar 'b' -->
+			<from>6</from>
+			<to>4</to>
+			<read>Z</read>
+			<write>Z</write>
+			<move>R</move>
+		</transition>
+
+		<!-- Transição para Fase 3 (Verificação) -->
+		<transition> <!-- Se q4 não encontra 'b' nem 'Z', mas encontra 'W', inicia Verificação -->
+			<from>4</from>
+			<to>7</to>
+			<read>W</read> <!-- Encontrou W significa que passou por todos os b's e Y's -->
+			<write>W</write>
+			<move>R</move>
+		</transition>
+        <transition> <!-- Se q4 não encontra b/Z/Y/W, mas encontra Branco (caso m=0 - rejeita) ou outro simbolo -> rejeita implicito -->
+             <from>4</from>
+             <to>7</to> <!-- Tecnicamente, poderia ir direto para aceitacao se branco, mas varrer Ws primeiro -->
+             <read/>
+             <write/>
+             <move>S</move> <!-- Se achar branco antes de W, vai para q7 para verificar, mas q7 vai parar e rejeitar -->
+         </transition>
+
+		<!-- Fase 3: Verificação Final -->
+		<transition> <!-- Move R sobre 'Y' (nao deveria ter mais Ys aqui se logica correta, mas por robustez) -->
+			<from>7</from>
+			<to>7</to>
+			<read>Y</read>
+			<write>Y</write>
+			<move>R</move>
+		</transition>
+		<transition> <!-- Move R sobre 'W' -->
+			<from>7</from>
+			<to>7</to>
+			<read>W</read>
+			<write>W</write>
+			<move>R</move>
+		</transition>
+		<transition> <!-- Encontra Branco ao final -> Aceita -->
+			<from>7</from>
+			<to>8</to>
+			<read/>
+			<write/>
+			<move>S</move>
+		</transition>
+
+	</automaton>
+</structure>
+
