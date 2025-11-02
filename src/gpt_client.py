@@ -88,6 +88,11 @@ SYSTEM_PROMPT_BASE_FA = (
     "        \"states\": [ { \"id\": 0, \"name\": \"q0\", \"initial\": true, \"final\": false, \"label\": \"Le 'a's\" }, { \"id\": 1, \"name\": \"q1\", \"initial\": false, \"final\": true, \"label\": \"Aceitacao\" } ],\n"
     "        \"transitions\": [ { \"from\": 0, \"to\": 0, \"read\": \"a\", \"pop\": \"Z\", \"push\": \"XZ\" }, { \"from\": 0, \"to\": 1, \"read\": \"b\", \"pop\": \"X\", \"push\": \"\" } ]\n"
     "      },\n"
+    "      \"turing\": {\n"
+    "        \"type\": \"turing\",\n"
+    "        \"states\": [ { \"id\": 0, \"name\": \"q0\", \"initial\": true, \"final\": false, \"label\": \"Estado inicial\" }, { \"id\": 1, \"name\": \"q1\", \"initial\": false, \"final\": true, \"label\": \"Aceitacao\" } ],\n"
+    "        \"transitions\": [ { \"from\": 0, \"to\": 0, \"read\": \"a\", \"write\": \"X\", \"move\": \"R\" }, { \"from\": 0, \"to\": 1, \"read\": \"X\", \"write\": \"X\", \"move\": \"R\" } ]\n"
+    "      },\n"
     "      \"cyk_result\": null\n"
     "    }\n"
     "  ]\n"
@@ -95,13 +100,14 @@ SYSTEM_PROMPT_BASE_FA = (
     "REGRAS DE RESPOSTA (SEJA CONCISO E DIRETO):\n"
     "1) SEM TEXTO fora do JSON\n"
     "2) Para questões de GRAMÁTICA LIVRE DE CONTEXTO: no campo 'explicacao', RETORNE APENAS as regras de produção da GLC. FORMATO: 'S -> r1 | r2, A -> ra1 | ...'. Use 'e' para epsilon. EXEMPLO: Para L2 = {a^n b^m b^m a^n | n > 0 e m > 0}, use S -> aSa | aMa, M -> bMb | bb\n"
-    "3) Para questões de AUTÔMATO DE PILHA (PDA): NÃO use o campo 'fa', use APENAS o campo 'pda' com type='pda'. Estados devem ter 'label' descritivo. Transições devem incluir 'read', 'pop' e 'push'. Use 'Z' como símbolo inicial da pilha\n"
-    "4) Para questões de ALGORITMO CYK: no campo 'cyk_result', retorne 'true' se a cadeia pertence à linguagem, 'false' caso contrário, seguido da tabela CYK detalhada. Se a cadeia não for especificada no enunciado, explique que a gramática está pronta para CYK mas a cadeia específica será testada nos subitens\n"
-    "5) Para questões de FORMA NORMAL DE CHOMSKY/GREIBACH: no campo 'explicacao', mostre a conversão passo a passo detalhada. Para FNG: 1) Mostre o ponto de partida (gramática pós-simplificação), 2) Identifique produções que não começam com terminal, 3) Substitua variáveis por suas produções, 4) Substitua terminais não-iniciais por novas variáveis (Tₐ→a, Tᵦ→b), 5) Apresente a gramática final. Use numeração clara e mostre cada substituição\n"
-    "6) Para LEMA DO BOMBEAMENTO (provar que NÃO é livre de contexto): no campo 'explicacao', siga as 5 etapas: 1) Assuma L livre de contexto e escolha p>0; 2) Escolha w ∈ L com |w| > p; 3) Mostre que w = uvxyz com |vxy| ≤ p e |vy| ≥ 1; 4) Demonstre que existe i (tipicamente 0 ou 2) tal que uv^ixy^iz ∉ L; 5) REFORCE explicitamente a conclusão: 'Logo, L não é livre de contexto'. Diretriz geral: trate casos-limite pertinentes ao enunciado sem pressupor linguagens específicas, explicando de forma objetiva a contradição quando as condições do lema são violadas ou quando as contagens/estruturas exigidas não se preservam\n"
-    "7) Para questões de SIMPLIFICAÇÃO DE GRAMÁTICAS: siga a ordem: remover ε-produções, remover produções unitárias, remover símbolos inúteis\n"
-    "8) Para questões de DERIVAÇÕES: mostre derivações leftmost detalhadas com notação ⇒. EXEMPLO: Para L2 = {a^n b^m b^m a^n}, com S -> aSa | aMa, M -> bMb | bb: S ⇒ aSa ⇒ aaSaa ⇒ aaMaa ⇒ aabMbaa ⇒ aabbbaa\n"
-    "9) Para questões de PROPRIEDADES DE FECHAMENTO: cite se GLCs são fechadas sob união, concatenação, fecho de Kleene (sim) ou interseção e complementação (não)\n"
+    "3) Para questões de AUTÔMATO DE PILHA (PDA): NÃO use o campo 'fa', use APENAS o campo 'pda' com type='pda'. Estados devem ter 'label' descritivo. Transições devem incluir 'read', 'pop' e 'push'. Use 'Z' como símbolo inicial da pilha. No campo 'explicacao', ADICIONE exemplos de inputs: 2-3 inputs que ACEITAM (retornam True) e 2-3 inputs que REJEITAM (retornam False). FORMATO: 'Inputs aceitos: aabb (True), aaabbb (True). Inputs rejeitados: ab (False), aaab (False)'\n"
+    "4) Para questões de MÁQUINA DE TURING: use APENAS o campo 'turing' com type='turing'. Estados devem ter 'label' descritivo. Transições devem incluir 'read', 'write' e 'move' (R/L). No campo 'explicacao', ADICIONE exemplos de inputs: 2-3 inputs que ACEITAM (retornam True) e 2-3 inputs que REJEITAM (retornam False). FORMATO: 'Inputs aceitos: abc (True), aabbcc (True). Inputs rejeitados: ab (False), aabbc (False)'\n"
+    "5) Para questões de ALGORITMO CYK: no campo 'cyk_result', retorne 'true' se a cadeia pertence à linguagem, 'false' caso contrário, seguido da tabela CYK detalhada. Se a cadeia não for especificada no enunciado, explique que a gramática está pronta para CYK mas a cadeia específica será testada nos subitens\n"
+    "6) Para questões de FORMA NORMAL DE CHOMSKY/GREIBACH: no campo 'explicacao', mostre a conversão passo a passo detalhada. Para FNG: 1) Mostre o ponto de partida (gramática pós-simplificação), 2) Identifique produções que não começam com terminal, 3) Substitua variáveis por suas produções, 4) Substitua terminais não-iniciais por novas variáveis (Tₐ→a, Tᵦ→b), 5) Apresente a gramática final. Use numeração clara e mostre cada substituição\n"
+    "7) Para LEMA DO BOMBEAMENTO (provar que NÃO é livre de contexto): no campo 'explicacao', siga as 5 etapas: 1) Assuma L livre de contexto e escolha p>0; 2) Escolha w ∈ L com |w| > p; 3) Mostre que w = uvxyz com |vxy| ≤ p e |vy| ≥ 1; 4) Demonstre que existe i (tipicamente 0 ou 2) tal que uv^ixy^iz ∉ L; 5) REFORCE explicitamente a conclusão: 'Logo, L não é livre de contexto'. Diretriz geral: trate casos-limite pertinentes ao enunciado sem pressupor linguagens específicas, explicando de forma objetiva a contradição quando as condições do lema são violadas ou quando as contagens/estruturas exigidas não se preservam\n"
+    "8) Para questões de SIMPLIFICAÇÃO DE GRAMÁTICAS: siga a ordem: remover ε-produções, remover produções unitárias, remover símbolos inúteis\n"
+    "9) Para questões de DERIVAÇÕES: mostre derivações leftmost detalhadas com notação ⇒. EXEMPLO: Para L2 = {a^n b^m b^m a^n}, com S -> aSa | aMa, M -> bMb | bb: S ⇒ aSa ⇒ aaSaa ⇒ aaMaa ⇒ aabMbaa ⇒ aabbbaa\n"
+    "10) Para questões de PROPRIEDADES DE FECHAMENTO: cite se GLCs são fechadas sob união, concatenação, fecho de Kleene (sim) ou interseção e complementação (não)\n"
     "IMPORTANTE: Se o contexto menciona 'autômato de pilha', 'pushdown' ou 'PDA', use APENAS o campo 'pda', NÃO use 'fa'.\n\n"
     "DIRETRIZES DE CONCISÃO E FORMATAÇÃO:\n"
     "- Seja DIRETO e OBJETIVO\n"
@@ -292,15 +298,15 @@ SYSTEM_PROMPT_GRAMMAR_VALIDATION = (
 def validate_grammars_gpt(questions: List[Dict[str, Any]]) -> Dict[str, Any]:
     """Valida e corrige gramáticas de questões de linguagens livres de contexto"""
     
-	# Filtrar apenas questões que têm gramáticas (explicacao) e NÃO são de Turing
-	grammar_questions = []
-	for q in questions:
-		# Pular questões de Máquina de Turing
-		if q.get("turing") and q.get("turing").get("type") == "turing":
-			continue
-		# Incluir apenas questões com explicação (gramáticas)
-		if q.get("explicacao") and q.get("explicacao").strip():
-			grammar_questions.append(q)
+    # Filtrar apenas questões que têm gramáticas (explicacao) e NÃO são de Turing
+    grammar_questions = []
+    for q in questions:
+        # Pular questões de Máquina de Turing
+        if q.get("turing") and isinstance(q.get("turing"), dict) and q.get("turing").get("type") == "turing":
+            continue
+        # Incluir apenas questões com explicação (gramáticas)
+        if q.get("explicacao") and q.get("explicacao").strip():
+            grammar_questions.append(q)
     
     if not grammar_questions:
         return {"questoes": []}
@@ -373,7 +379,7 @@ def generate_turing_tests_gpt(questions: List[Dict[str, Any]]) -> Dict[str, Any]
     # Filtrar apenas questões de Máquina de Turing
     turing_questions = []
     for q in questions:
-        if q.get("turing") and q.get("turing").get("type") == "turing":
+        if q.get("turing") and isinstance(q.get("turing"), dict) and q.get("turing").get("type") == "turing":
             turing_questions.append(q)
     
     if not turing_questions:

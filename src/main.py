@@ -12,6 +12,7 @@ from .config import INPUT_DIR_DEFAULT, OUTPUT_DIR_DEFAULT, MAX_QUEST_PER_BLOCK, 
 from .extractor import extract_text
 from .ai_client import extract_with_ai, merge_blocks, segment_text_into_questions, validate_grammars, generate_turing_tests
 from .jff_converter import write_mealy_jff_file, write_fa_jff_file, write_pda_jff_file, write_turing_jff_file
+from .validator_parallel import run_validator_background
 
 
 STATUS_FILE = "status.json"
@@ -49,7 +50,7 @@ def _copy_to_desktop_immediately(stem: str, out_dir: Path, q: Dict[str, Any], so
 		base = f"{stem}_{qid}"
 		
 		# Determinar se é questão de Turing para decidir cópia de TXT
-		is_turing = bool(q.get("turing") and q.get("turing", {}).get("type") == "turing")
+		is_turing = bool(q.get("turing") and isinstance(q.get("turing"), dict) and q.get("turing", {}).get("type") == "turing")
 		# Copiar arquivo TXT (pular para Turing)
 		if not is_turing:
 			txt_src = out_dir / f"{base}.txt"
@@ -93,11 +94,11 @@ def _question_needs_jff(q: Dict[str, Any]) -> bool:
 	
 	# Verificar se a questão tem campos de autômato preenchidos
 	has_automaton_data = (
-		(q.get("pda") and q.get("pda").get("type") == "pda") or
-		(q.get("fa") and q.get("fa").get("type") in ["fa", "dfa", "nfa"]) or
-		(q.get("mealy") and q.get("mealy").get("type") == "mealy") or
-		(q.get("moore") and q.get("moore").get("type") == "moore") or
-		(q.get("turing") and q.get("turing").get("type") == "turing")
+		(q.get("pda") and isinstance(q.get("pda"), dict) and q.get("pda").get("type") == "pda") or
+		(q.get("fa") and isinstance(q.get("fa"), dict) and q.get("fa").get("type") in ["fa", "dfa", "nfa"]) or
+		(q.get("mealy") and isinstance(q.get("mealy"), dict) and q.get("mealy").get("type") == "mealy") or
+		(q.get("moore") and isinstance(q.get("moore"), dict) and q.get("moore").get("type") == "moore") or
+		(q.get("turing") and isinstance(q.get("turing"), dict) and q.get("turing").get("type") == "turing")
 	)
 	
 	# Verificar se é uma questão que NÃO precisa de JFF (apenas gramática, teoria, etc.)
@@ -162,11 +163,11 @@ def _write_per_question_outputs(stem: str, out_dir: Path, q: Dict[str, Any], jff
 			is_pda_question = (
 				("autômato de pilha" in contexto or "pushdown" in contexto or "pda" in contexto or "pilha" in contexto) and
 				("construa" in contexto or "construir" in contexto) and
-				(q.get("pda") and q.get("pda").get("type") == "pda")
+				(q.get("pda") and isinstance(q.get("pda"), dict) and q.get("pda").get("type") == "pda")
 			)
 			is_turing_question = (
 				("máquina" in contexto or "maquina" in contexto or "turing" in contexto or "turing machine" in contexto or "mt" in contexto)
-				and (q.get("turing") and q.get("turing").get("type") == "turing")
+				and (q.get("turing") and isinstance(q.get("turing"), dict) and q.get("turing").get("type") == "turing")
 			)
 			
 			if jff_type == "mealy":
@@ -429,12 +430,22 @@ def process_file(file_path: Path, out_dir: Path, jff_type: str = "fa", refresh: 
 	for q in questions:
 		qid = _sanitize_id(q.get("id") or "")
 		if qid in done_ids:
-			processed_questions.append(q)
-			# Armazenar resultado para questões subsequentes
-			if qid[-1].isdigit():  # Questão principal
-				explicacao = q.get("explicacao", "")
-				if explicacao:
-					previous_results[qid] = explicacao
+			# Carregar dados completos da questão já processada
+			json_path = out_dir / f"{file_path.stem}_{qid}.json"
+			if json_path.exists():
+				try:
+					q_complete = json.loads(json_path.read_text(encoding="utf-8"))
+					processed_questions.append(q_complete)
+					# Armazenar resultado para questões subsequentes
+					if qid[-1].isdigit():  # Questão principal
+						explicacao = q_complete.get("explicacao", "")
+						if explicacao:
+							previous_results[qid] = explicacao
+				except Exception as e:
+					print(f"⚠️  Erro ao carregar {qid}: {e}, usando dados básicos")
+					processed_questions.append(q)
+			else:
+				processed_questions.append(q)
 		else:
 			questions_to_process.append(q)
 	
@@ -587,6 +598,13 @@ def main() -> None:
 	for f in files:
 		try:
 			process_file(f, out, jff_type=args.jff_type, refresh=args.refresh, solved_subdir=args.solved_dir)
+			
+			# Executar validador em background após processar cada arquivo
+			try:
+				run_validator_background(f, out)
+			except Exception as e:
+				print(f"⚠️  Erro no validador paralelo: {e}")
+				
 		except Exception as e:
 			print(f"Erro ao processar {f.name}: {e}")
 	

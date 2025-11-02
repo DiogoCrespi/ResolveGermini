@@ -8,6 +8,7 @@ AI_MODEL = os.getenv("AI_MODEL", "gemini").lower().strip()
 
 # Configurações do Gemini
 GEMINI_API_KEY = os.getenv("GEMINI_API_KEY", "")
+GEMINI_API_KEY_BACKUP = os.getenv("GEMINI_API_KEY_BACKUP", "")
 GEMINI_MODEL = os.getenv("GEMINI_MODEL", "gemini-2.0-flash")
 
 # Configurações do OpenAI GPT

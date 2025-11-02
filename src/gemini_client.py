@@ -8,9 +8,9 @@ from ratelimit import limits, sleep_and_retry
 import requests
 from pathlib import Path
 
-from .config import GEMINI_API_KEY, GEMINI_MODEL, RATE_LIMIT_PER_MINUTE
+from .config import GEMINI_API_KEY, GEMINI_API_KEY_BACKUP, GEMINI_MODEL, RATE_LIMIT_PER_MINUTE
 
-if not GEMINI_API_KEY:
+if not GEMINI_API_KEY and not GEMINI_API_KEY_BACKUP:
 	raise RuntimeError("GEMINI_API_KEY não definida. Use .env ou variável de ambiente.")
 
 ANSWER_MODE = os.getenv("ANSWER_MODE", "fa").lower().strip()
@@ -92,49 +92,53 @@ SYSTEM_PROMPT_BASE_FA = (
 	"REGRAS DE RESPOSTA (SEJA CONCISO E DIRETO):\n"
 	"1) SEM TEXTO fora do JSON\n"
 	"2) Para questões de GRAMÁTICA LIVRE DE CONTEXTO: no campo 'explicacao', RETORNE APENAS as regras de produção da GLC. FORMATO: 'S -> r1 | r2, A -> ra1 | ...'. Use 'e' para epsilon. EXEMPLO: Para L2 = {a^n b^m b^m a^n | n > 0 e m > 0}, use S -> aSa | aMa, M -> bMb | bb\n"
-	"3) Para questões de AUTÔMATO DE PILHA (PDA): NÃO use o campo 'fa', use APENAS o campo 'pda' com type='pda'. Estados devem ter 'label' descritivo. Transições devem incluir 'read', 'pop' e 'push'. Use 'Z' como símbolo inicial da pilha\n"
-	"4) Para questões de MÁQUINA DE TURING: use APENAS o campo 'turing' com type='turing'. Estados devem ter 'label' descritivo. Transições devem incluir 'read', 'write' e 'move' (R/L). Use símbolos auxiliares (X, Y, Z) para marcar posições\n"
+	"3) Para questões de AUTÔMATO DE PILHA (PDA): NÃO use o campo 'fa', use APENAS o campo 'pda' com type='pda'. Estados devem ter 'label' descritivo. Transições devem incluir 'read', 'pop' e 'push'. Use 'Z' como símbolo inicial da pilha. No campo 'explicacao', ADICIONE exemplos de inputs: 2-3 inputs que ACEITAM (retornam True) e 2-3 inputs que REJEITAM (retornam False). FORMATO: 'Inputs aceitos: aabb (True), aaabbb (True). Inputs rejeitados: ab (False), aaab (False)'\n"
+	"4) Para questões de MÁQUINA DE TURING: use APENAS o campo 'turing' com type='turing'. Estados devem ter 'label' descritivo. Transições devem incluir 'read', 'write' e 'move' (R/L). Use símbolos auxiliares (X, Y, Z) para marcar posições.\n"
 	"   - EXIGÊNCIA: Retorne 'states' e 'transitions' completos que reconheçam exatamente a linguagem pedida.\n"
 	"   - GARANTA: Há pelo menos um estado inicial e um de aceitação, e as transições cobrem o fluxo principal da leitura.\n"
+	"   - No campo 'explicacao', ADICIONE exemplos de inputs: 2-3 inputs que ACEITAM (retornam True) e 2-3 inputs que REJEITAM (retornam False). FORMATO: 'Inputs aceitos: aabb (True), aaabbb (True). Inputs rejeitados: ab (False), aaab (False)'\n"
 	"5) Para questões de ALGORITMO CYK: no campo 'cyk_result', retorne 'true' se a cadeia pertence à linguagem, 'false' caso contrário, seguido da tabela CYK detalhada. Se a cadeia não for especificada no enunciado, explique que a gramática está pronta para CYK mas a cadeia específica será testada nos subitens\n"
-	"6) Para questões de FORMA NORMAL DE CHOMSKY/GREIBACH: no campo 'explicacao', mostre a conversão passo a passo detalhada. Para FNG: 1) Mostre o ponto de partida (gramática pós-simplificação), 2) Identifique produções que não começam com terminal, 3) Substitua variáveis por suas produções, 4) Substitua terminais não-iniciais por novas variáveis (Tₐ→a, Tᵦ→b), 5) Apresente a gramática final. Use numeração clara e mostre cada substituição\n"
+	"6) Para questões de FORMA NORMAL DE CHOMSKY/GREIBACH: CRÍTICO - ZERO explicações, APENAS gramáticas resultantes. Para FNG: Siga exatamente: Simplificação (mostre apenas as gramáticas finais), FNC (mostre apenas gramática final), FNG (se FNC tem MUITAS produções >50, mostre APENAS 4 títulos de passos + 'Continuando processo recursivo...' + resultado final. Se FNC tem POUCAS produções <50, EXECUTE conversão completa mostrando todas as substituições). SEM justificativas, SEM contexto, SEM variáveis anuláveis listadas\n"
 	"7) Para LEMA DO BOMBEAMENTO (provar que NÃO é livre de contexto): seja sucinto e siga os 5 passos: 1) Assuma L livre de contexto e escolha p>0; 2) Escolha w ∈ L com |w| > p; 3) Escreva w = uvxyz com |vxy| ≤ p e |vy| ≥ 1; 4) Mostre um i (tipicamente 0 ou 2) tal que uv^ixy^iz ∉ L; 5) REFORCE explicitamente a conclusão: 'Logo, L não é livre de contexto'. Diretriz geral: considere os casos-limite pertinentes ao enunciado; sempre que a escolha de v, x, y levar a violar |vy| ≥ 1 ou a não preservar as contagens/estruturas exigidas pela linguagem, explicite a contradição de forma direta e objetiva\n"
 	"8) Para questões de SIMPLIFICAÇÃO DE GRAMÁTICAS: siga a ordem: remover ε-produções, remover produções unitárias, remover símbolos inúteis\n"
 	"9) Para questões de DERIVAÇÕES: mostre derivações leftmost detalhadas com notação ⇒. EXEMPLO: Para L2 = {a^n b^m b^m a^n}, com S -> aSa | aMa, M -> bMb | bb: S ⇒ aSa ⇒ aaSaa ⇒ aaMaa ⇒ aabMbaa ⇒ aabbbaa\n"
 	"10) Para questões de PROPRIEDADES DE FECHAMENTO: cite se GLCs são fechadas sob união, concatenação, fecho de Kleene (sim) ou interseção e complementação (não)\n"
 	"IMPORTANTE: Se o contexto menciona 'autômato de pilha', 'pushdown' ou 'PDA', use APENAS o campo 'pda', NÃO use 'fa'.\n\n"
-	"DIRETRIZES DE CONCISÃO E FORMATAÇÃO:\n"
-	"- Seja DIRETO e OBJETIVO\n"
-	"- Evite explicações longas ou redundantes\n"
-	"- Foque nos RESULTADOS e PROCESSOS essenciais\n"
-	"- Para bombeamento: mostre apenas os 5 passos essenciais\n"
-	"- Para CYK: mostre apenas a tabela final e resultado\n"
-	"- Para conversões: mostre apenas os passos principais\n"
-	"- Para derivações: mostre apenas a sequência de passos\n"
+	"DIRETRIZES DE CONCISÃO E FORMATAÇÃO (CRÍTICO - ZERO TEXTO DESNECESSÁRIO):\n"
+	"- Seja EXTREMAMENTE DIRETO: máximo 1 frase por passo, SEM justificativas\n"
+	"- Evite TUDO além do essencial: contexto, exemplos, explicações\n"
+	"- Foque APENAS em RESULTADOS práticos (gramáticas, tabelas, passos)\n"
+	"- Para bombeamento: apenas os 5 passos essenciais SEM explicações\n"
+	"- Para CYK: apenas tabela final e resultado SEM explicações\n"
+	"- Para conversões: apenas gramáticas resultantes de cada passo, SEM explicações\n"
+	"- Para FNG: EXECUTE CONVERSÃO COMPLETA mostrando TODAS as substituições e produções finais reais, NÃO use templates\n"
+	"- Para derivações: apenas a sequência de passos SEM explicações\n"
 	"- NÃO repita informações já dadas no enunciado\n"
-	"- Simplificar = tornar mais claro SEM REMOVER ETAPAS. Mantenha TODOS os passos numerados e visíveis\n"
-	"- Reforce a CONCLUSÃO explicitamente quando houver prova por contradição (ex.: 'Logo, L não é livre de contexto pois ...')\n\n"
+	"- Simplificar = MANTER passos MAS REMOVER TODAS explicações. Só apresente resultados\n"
+	"- Reforce conclusão apenas quando houver prova por contradição: 'Logo, L não é livre de contexto'\n\n"
 	"TRATAMENTO DE QUESTÕES INCOMPLETAS:\n"
 	"- Se uma questão não tem todos os dados necessários (ex: CYK sem cadeia, bombeamento sem linguagem), explique que os dados específicos serão fornecidos nos subitens\n"
 	"- Para CYK: se não há cadeia, explique que a gramática está pronta e a cadeia será testada nos subitens\n"
 	"- Para bombeamento: se não há linguagem específica, explique que a linguagem será especificada nos subitens\n"
 	"- Para conversões: se não há gramática inicial, explique que a gramática será fornecida nos subitens\n\n"
-	"EXEMPLO DE RESPOSTA PARA CONVERSÃO FNG:\n"
-	"Ponto de Partida: Gramática Pós-Simplificação\\n"
-	"S → AB | aBa | aa | a | bAb | bb | b\\n"
-	"A → aBa | aa | a | bAb | bb | b\\n"
-	"B → bAb | bb | b\\n\\n"
-	"Passo 1: Garantir que Todas as Produções Comecem com um Terminal\\n"
-	"Regra a ser corrigida: S → AB\\n"
-	"Produções de A: A → aBa | aa | a | bAb | bb | b\\n"
-	"Substituição:\\n"
-	"S → (aBa)B | (aa)B | (a)B | (bAb)B | (bb)B | (b)B\\n"
-	"Simplificando: S → aBaB | aaB | aB | bAbB | bbB | bB\\n\\n"
-	"Passo 2: Substituir Terminais por Variáveis\\n"
-	"Novas Variáveis: Tₐ → a, Tᵦ → b\\n"
-	"[mostrar todas as substituições]\\n\\n"
-	"Gramática Final em FNG\\n"
-	"[apresentar resultado final]\n\n"
+	"EXEMPLO DE RESPOSTA PARA CONVERSÃO FNG (SEM EXPLICAÇÕES):\n"
+	"Passo 1: Simplificação\\n"
+	"Eliminar ε: S → ASA | aB | a, A → B | S, B → b\\n"
+	"Eliminar unitárias: S → ASA | AS | SA | aB | a, A → b | ASA | AS | SA | aB | a, B → b\\n\\n"
+	"Passo 2: FNC\\n"
+	"T_a → a, T_b → b, T → SA\\n"
+	"S → AT | AS | SA | T_a B | T_a\\n"
+	"A → T_b | AT | AS | SA | T_a B | T_a\\n"
+	"B → T_b\\n\\n"
+	"Passo 3: FNG\\n"
+	"Se FNC tem FEW produções (<50): mostrar conversão completa\\n"
+	"Se FNC tem MANY produções (>50): mostrar apenas títulos:\\n"
+	"3.1. Eliminar recursão à esquerda em S\\n"
+	"3.2. Eliminar recursão à esquerda em A\\n"
+	"3.3. Substituições recursivas...\\n"
+	"3.4. Substituições recursivas...\\n"
+	"Continuando processo recursivo...\\n"
+	"Resultado final: Todas as produções começam com terminal\\n\\n"
 	"FORMATAÇÃO ESTRUTURADA:\n"
 	"- Use quebras de linha (\\n) para separar seções\n"
 	"- Use numeração para passos (1., 2., 3.)\n"
@@ -200,6 +204,32 @@ else:
 
 API_URL = f"https://generativelanguage.googleapis.com/v1beta/models/{GEMINI_MODEL}:generateContent"
 
+# Timeout de 5 minutos (300 segundos) para questões complexas
+DEFAULT_TIMEOUT = 300
+
+def _make_api_call(payload: Dict[str, Any], timeout: int = DEFAULT_TIMEOUT) -> Dict[str, Any]:
+	"""Faz chamada à API com fallback para chave de backup"""
+	headers = {
+		"Content-Type": "application/json",
+		"X-goog-api-key": GEMINI_API_KEY,
+	}
+	
+	try:
+		resp = requests.post(API_URL, headers=headers, data=json.dumps(payload), timeout=timeout)
+		resp.raise_for_status()
+		return resp.json()
+	except requests.exceptions.HTTPError as e:
+		# Se falhou por erro de API key ou quota, tenta com backup
+		resp = e.response
+		if resp is not None and (resp.status_code in [401, 403, 429]) and GEMINI_API_KEY_BACKUP:
+			print(f"⚠️  Chave principal falhou, usando backup: {e}")
+			headers["X-goog-api-key"] = GEMINI_API_KEY_BACKUP
+			resp = requests.post(API_URL, headers=headers, data=json.dumps(payload), timeout=timeout)
+			resp.raise_for_status()
+			return resp.json()
+		else:
+			raise e
+
 
 def _extract_json_from_text(text: str) -> Dict[str, Any]:
 	try:
@@ -248,13 +278,7 @@ def extract_with_gemini(block_text: str) -> Dict[str, Any]:
 			}
 		]
 	}
-	headers = {
-		"Content-Type": "application/json",
-		"X-goog-api-key": GEMINI_API_KEY,
-	}
-	resp = requests.post(API_URL, headers=headers, data=json.dumps(payload), timeout=120)
-	resp.raise_for_status()
-	data = resp.json()
+	data = _make_api_call(payload, timeout=120)
 	candidates = data.get("candidates", [])
 	if not candidates:
 		return {"questoes": []}
@@ -279,13 +303,7 @@ def segment_text_into_questions(full_text: str) -> Dict[str, Any]:
 			}
 		]
 	}
-	headers = {
-		"Content-Type": "application/json",
-		"X-goog-api-key": GEMINI_API_KEY,
-	}
-	resp = requests.post(API_URL, headers=headers, data=json.dumps(payload), timeout=180)
-	resp.raise_for_status()
-	data = resp.json()
+	data = _make_api_call(payload, timeout=180)
 	candidates = data.get("candidates", [])
 	if not candidates:
 		return {"questoes": []}
@@ -356,7 +374,7 @@ def validate_grammars(questions: List[Dict[str, Any]]) -> Dict[str, Any]:
 	grammar_questions = []
 	for q in questions:
 		# Pular questões de Máquina de Turing
-		if q.get("turing") and q.get("turing").get("type") == "turing":
+		if q.get("turing") and isinstance(q.get("turing"), dict) and q.get("turing").get("type") == "turing":
 			continue
 		# Incluir apenas questões com explicação (gramáticas)
 		if q.get("explicacao") and q.get("explicacao").strip():
@@ -384,13 +402,7 @@ def validate_grammars(questions: List[Dict[str, Any]]) -> Dict[str, Any]:
 			}
 		]
 	}
-	headers = {
-		"Content-Type": "application/json",
-		"X-goog-api-key": GEMINI_API_KEY,
-	}
-	resp = requests.post(API_URL, headers=headers, data=json.dumps(payload), timeout=120)
-	resp.raise_for_status()
-	data = resp.json()
+	data = _make_api_call(payload, timeout=120)
 	candidates = data.get("candidates", [])
 	if not candidates:
 		return {"questoes": []}
@@ -440,7 +452,7 @@ def generate_turing_tests(questions: List[Dict[str, Any]]) -> Dict[str, Any]:
 	# Filtrar apenas questões de Máquina de Turing
 	turing_questions = []
 	for q in questions:
-		if q.get("turing") and q.get("turing").get("type") == "turing":
+		if q.get("turing") and isinstance(q.get("turing"), dict) and q.get("turing").get("type") == "turing":
 			turing_questions.append(q)
 	
 	if not turing_questions:
@@ -465,13 +477,7 @@ def generate_turing_tests(questions: List[Dict[str, Any]]) -> Dict[str, Any]:
 			}
 		]
 	}
-	headers = {
-		"Content-Type": "application/json",
-		"X-goog-api-key": GEMINI_API_KEY,
-	}
-	resp = requests.post(API_URL, headers=headers, data=json.dumps(payload), timeout=120)
-	resp.raise_for_status()
-	data = resp.json()
+	data = _make_api_call(payload, timeout=120)
 	candidates = data.get("candidates", [])
 	if not candidates:
 		return {"questoes": []}
