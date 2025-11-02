@@ -143,6 +143,10 @@ def _write_per_question_outputs(stem: str, out_dir: Path, q: Dict[str, Any], jff
 	resp_txt = (q.get("resposta") or "").strip()
 	if resp_txt:
 		content_lines.append(f"Resposta: {resp_txt}")
+	# incluir cyk_result quando existir (questoes de CYK)
+	cyk_result = (q.get("cyk_result") or "").strip()
+	if cyk_result:
+		content_lines.append(f"CYK: {cyk_result}")
 	txt_path.write_text("\n".join(content_lines), encoding="utf-8")
 	# JSON por questão
 	json_path = out_dir / f"{base}.json"
